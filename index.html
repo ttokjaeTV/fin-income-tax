@@ -94,6 +94,53 @@
   .chip:hover { border-color: var(--accent); color: var(--accent); }
   .chip.on { background: var(--accent); border-color: var(--accent); color: var(--white); }
   .is-hidden { display: none !important; }
+  /* 입력 방식 전환 · 종목별 입력 */
+  .seg { display: inline-flex; flex-wrap: wrap; gap: 4px; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 12px; padding: 4px; margin-bottom: 20px; max-width: 100%; }
+  .seg-btn { font-family: inherit; font-size: 14px; font-weight: 800; color: var(--ink-soft); background: transparent; border: none; border-radius: 9px; padding: 9px 16px; cursor: pointer; letter-spacing: -0.2px; }
+  .seg-btn:hover { color: var(--accent); }
+  .seg-btn.active { background: var(--dark-warm); color: var(--white); }
+  .seg-sub { font-size: 11.5px; font-weight: 700; color: var(--accent); margin-left: 4px; }
+  .seg-btn.active .seg-sub { color: #FFB38F; }
+  .lock-note { display: none; font-size: 12px; font-weight: 700; color: var(--brown); margin-top: 8px; }
+  body.mode-hold .lock-note { display: block; }
+  body.mode-hold .chips[data-target="divgu"], body.mode-hold .chips[data-target="divoth"] { display: none; }
+  input.locked { background: var(--bg-alt); color: var(--ink-soft); cursor: not-allowed; }
+  .hold-panel { margin-top: 18px; }
+  .hold-add { display: grid; grid-template-columns: minmax(0, 1fr) 200px auto; gap: 10px; align-items: end; }
+  .hold-search { position: relative; min-width: 0; }
+  .hold-search input, .hold-row input[type=text] { background: var(--white); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; font-family: inherit; font-size: 16px; color: var(--ink); font-weight: 700; width: 100%; }
+  .hold-search input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .hold-amt .input-wrap input { padding-right: 14px; }
+  .hold-btn { height: 48px; justify-content: center; padding: 0 22px; }
+  .hold-sug { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; box-shadow: 0 8px 24px rgba(58,47,38,0.14); max-height: 320px; overflow-y: auto; }
+  .sug-item { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 10px 14px; cursor: pointer; border-bottom: 1px solid var(--border); }
+  .sug-item:last-child { border-bottom: none; }
+  .sug-item.on, .sug-item:hover { background: var(--bg-alt); }
+  .sug-name { font-size: 14.5px; font-weight: 800; color: var(--ink); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sug-meta { font-size: 11.5px; font-weight: 700; color: var(--ink-mute); white-space: nowrap; flex-shrink: 0; }
+  .sug-empty { padding: 12px 14px; font-size: 13px; font-weight: 600; color: var(--ink-mute); line-height: 1.6; }
+  .hold-status { font-size: 12px; font-weight: 600; color: var(--ink-mute); margin-top: 10px; }
+  .hold-status.err { color: var(--accent); font-weight: 700; }
+  .hold-list { display: grid; gap: 8px; margin-top: 14px; }
+  .hold-row { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.5fr) 150px 36px; gap: 10px; align-items: center; background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 12px; }
+  .hold-row.gu { border-color: var(--accent); }
+  .hr-name { min-width: 0; }
+  .hr-name b { display: block; font-size: 14.5px; font-weight: 800; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hr-name span { font-size: 11.5px; font-weight: 700; color: var(--ink-mute); }
+  .hr-verdict { min-width: 0; }
+  .hr-verdict select { padding: 7px 10px; font-size: 13px; border-radius: 8px; width: auto; max-width: 100%; }
+  .hold-row.gu .hr-verdict select { border-color: var(--accent); color: var(--accent); }
+  .hr-why { font-size: 11.5px; font-weight: 600; color: var(--ink-mute); line-height: 1.5; margin-top: 4px; }
+  .hr-why.ovr { color: var(--brown); font-weight: 700; }
+  .hr-amt { position: relative; }
+  .hr-amt input { padding: 9px 44px 9px 10px; font-size: 15px; text-align: right; }
+  .hr-amt span { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 12.5px; font-weight: 700; color: var(--ink-mute); pointer-events: none; }
+  .hr-del { width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--white); color: var(--ink-mute); font-family: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
+  .hr-del:hover { border-color: var(--accent); color: var(--accent); }
+  .hold-sum { margin-top: 12px; font-size: 14px; font-weight: 700; line-height: 1.7; color: var(--ink-soft); }
+  .hold-sum b { color: var(--accent); }
+  .hold-sum:empty { display: none; }
+  .hold-foot { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); font-size: 12px; font-weight: 600; color: var(--ink-mute); line-height: 1.65; }
   .fixed-note { background: var(--accent-soft); color: var(--accent); border-radius: 10px; padding: 12px 14px; font-size: 13.5px; font-weight: 700; line-height: 1.55; }
   .sum-line { margin-top: 18px; background: var(--white); border: 1.5px solid var(--border); border-radius: 14px; padding: 14px 16px; font-size: 14.5px; font-weight: 700; line-height: 1.6; }
   .sum-line b { color: var(--accent); }
@@ -230,6 +277,13 @@
     .mode-tab .mt-title { font-size: 16px; }
     .grid-2, .grid-3, .room-grid { grid-template-columns: 1fr !important; gap: 14px !important; }
     .sub-card { padding: 16px; }
+    .seg { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+    .seg-btn { padding: 9px 8px; font-size: 13px; line-height: 1.35; }
+    .seg-sub { display: block; margin-left: 0; font-size: 11px; }
+    .hold-add { grid-template-columns: minmax(0, 1fr) auto; }
+    .hold-search { grid-column: 1 / -1; }
+    .hold-row { grid-template-columns: minmax(0, 1fr) 36px; grid-template-areas: "n d" "v v" "a a"; gap: 8px; }
+    .hr-name { grid-area: n; } .hr-del { grid-area: d; } .hr-verdict { grid-area: v; } .hr-amt { grid-area: a; }
     .input-wrap input { padding-right: 112px; }
     .input-currency { max-width: 104px; font-size: 12px; }
     .card-title { font-size: 20px; }
@@ -312,6 +366,10 @@
     <div class="step-label"><div class="step-line"></div><span class="step-text">STEP 01 / 금융소득</span></div>
     <h2 class="card-title">1년 동안 받는 이자·배당을 넣으세요</h2>
     <p class="card-subtitle">금액은 모두 <strong>만원 단위, 세금 떼기 전(세전)</strong> 연간 금액입니다. 같은 해(1~12월)에 받은 돈 기준이며, 부부라도 <b>사람마다 따로</b> 계산합니다.</p>
+    <div class="seg" role="tablist" aria-label="배당 입력 방식">
+      <button type="button" class="seg-btn active" data-mode="amount" role="tab">금액으로 입력</button>
+      <button type="button" class="seg-btn" data-mode="hold" role="tab">종목으로 입력 <span class="seg-sub">그로스업 자동 판정</span></button>
+    </div>
     <div class="grid-3">
       <div class="input-group">
         <label class="label" for="interest">이자</label>
@@ -328,6 +386,7 @@
           <input type="number" id="divgu" data-unit="만원" data-fmt="man" value="300" step="50" min="0" inputmode="decimal">
           <span class="input-currency" id="divgu-display">-</span>
         </div>
+        <div class="lock-note">아래 종목 목록에서 자동으로 합산합니다</div>
         <div class="chips" data-target="divgu"><button class="chip" data-v="0">0</button><button class="chip" data-v="300">300만</button><button class="chip" data-v="1000">1,000만</button><button class="chip" data-v="2000">2,000만</button></div>
         <div class="input-hint">삼성전자·KB금융처럼 <b>주식을 직접</b> 들고 받은 배당 (그로스업 대상)</div>
       </div>
@@ -337,9 +396,32 @@
           <input type="number" id="divoth" data-unit="만원" data-fmt="man" value="2500" step="100" min="0" inputmode="decimal">
           <span class="input-currency" id="divoth-display">-</span>
         </div>
+        <div class="lock-note">아래 종목 목록에서 자동으로 합산합니다</div>
         <div class="chips" data-target="divoth"><button class="chip" data-v="1000">1,000만</button><button class="chip" data-v="2500">2,500만</button><button class="chip" data-v="4000">4,000만</button><button class="chip" data-v="6000">6,000만</button></div>
-        <div class="input-hint">ETF 분배금(국내주식형 포함)·국내상장 해외ETF 매매차익·해외주식 배당·리츠 배당 (그로스업 대상 아님)</div>
+        <div class="input-hint">ETF 분배금(국내주식형 포함)·국내상장 해외 ETF 매매차익·해외주식 배당·리츠 배당 (그로스업 대상 아님)</div>
       </div>
+    </div>
+    <div class="sub-card hold-panel is-hidden" id="hold-panel">
+      <div class="sub-card-title">종목별 배당 — 그로스업 대상인지 자동으로 나눕니다</div>
+      <div class="hold-add">
+        <div class="hold-search">
+          <label class="label" for="hold-q">종목 검색</label>
+          <input type="text" id="hold-q" autocomplete="off" spellcheck="false" placeholder="종목명·코드·티커 (예: 삼성전자, SCHD)" role="combobox" aria-expanded="false" aria-controls="hold-sug" aria-autocomplete="list">
+          <div class="hold-sug is-hidden" id="hold-sug" role="listbox"></div>
+        </div>
+        <div class="hold-amt">
+          <label class="label" for="hold-amt">1년 배당 (세전)</label>
+          <div class="input-wrap">
+            <input type="number" id="hold-amt" data-unit="만원" value="" step="10" min="0" inputmode="decimal" placeholder="0">
+          </div>
+        </div>
+        <button type="button" class="btn accent hold-btn" id="hold-add">추가</button>
+      </div>
+      <div class="input-hint">금액은 통장에 들어온 돈이 아니라 <b>세금 떼기 전 과세 대상 금액</b>입니다. 국내주식형 ETF·커버드콜 ETF는 과세 대상 금액이 분배금보다 작을 수 있으니 증권사 원천징수 내역의 '배당소득' 금액을 넣으세요.</div>
+      <div class="hold-status" id="hold-status">종목 목록을 불러오는 중입니다…</div>
+      <div class="hold-list" id="hold-list"></div>
+      <div class="hold-sum" id="hold-sum"></div>
+      <div class="hold-foot">판정 기준: 국내 법인에서 직접 받은 배당만 그로스업 대상입니다(소득세법 제17조 제3항). ETF·펀드 분배금, 외국법인 배당(해외주식·국내 상장 외국기업), 배당 소득공제를 받는 위탁관리·CR리츠와 투자회사(인프라 펀드 등)는 대상이 아닙니다. 법인세를 감면받는 일부 국내 법인은 종목명만으로 알 수 없으니, 실제와 다르면 종목마다 있는 판정 칸에서 직접 바꾸세요. 종목 목록은 국내 상장주식·국내상장 ETF·미국 상장 종목(KRX·나스닥 공개 목록)입니다.</div>
     </div>
     <div class="head-msg" style="margin-top:4px;">
       <b>넣지 않는 것</b> — ISA·연금저축·IRP <b>계좌 안</b>에서 생긴 이자·배당은 금융소득종합과세와 건보료 계산에서 빠집니다. 해외주식을 직접 사고판 <b>양도차익</b>도 양도소득이라 여기 넣지 않습니다(<a href="https://ttokjaetv.github.io/overseas-stock-tax/" target="_blank" rel="noopener" style="color:var(--accent);font-weight:800;text-decoration:none;">해외주식 양도세 계산기</a>). 국내 상장주식·국내주식형 ETF를 <b>팔아서 남긴 차익</b>도 비과세라 넣지 않습니다.
@@ -571,7 +653,7 @@
       <div class="rule"><div class="rule-k">종합과세 기준</div><div class="rule-v"><span class="badge">계산 반영</span>이자·배당 합계가 <b>연 2,000만원을 넘으면</b> 전액을 다른 종합소득과 합산(개인별, 부부 합산 없음). 2,000만원 이하면 원천징수 14%(지방세 포함 15.4%)로 끝납니다. ISA·연금계좌 안의 소득은 빠집니다.</div></div>
       <div class="rule"><div class="rule-k">기본세율</div><div class="rule-v"><span class="badge">계산 반영</span>과세표준 1,400만원 이하 6% · 5,000만원 15% · 8,800만원 24% · 1억5천만원 35% · 3억 38% · 5억 40% · 10억 42% · 초과 45%. 지방소득세는 소득세의 10%.</div></div>
       <div class="rule"><div class="rule-k">비교과세</div><div class="rule-v"><span class="badge">계산 반영</span>산출세액 = max(A, B). <b>A</b> = 2,000만원 × 14% + (종합소득 과세표준 − 2,000만원) × 기본세율, <b>B</b> = 금융소득 × 14% + (종합소득 과세표준 − 금융소득금액) × 기본세율(소득세법 제62조). 그래서 다른 소득이 적으면 2,000만원을 넘어도 추가 세금이 0원인 구간이 생깁니다.</div></div>
-      <div class="rule"><div class="rule-k">그로스업 · 배당세액공제</div><div class="rule-v"><span class="badge">계산 반영</span>법인세를 낸 국내 법인에서 직접 받은 배당 중 2,000만원을 넘는 부분에 <b>10%</b>를 더해 소득으로 잡고(이자 → 그로스업 대상이 아닌 배당 → 대상 배당 순으로 2,000만원을 채움), 같은 금액을 한도로 배당세액공제(산출세액 − B가 한도). ETF 분배금·해외주식 배당·국내상장 해외ETF 매매차익·이자는 대상이 아닙니다. <b>2027년 1월 1일 이후 받는 배당부터는 11%</b>로 바뀝니다(소득세법 제17조 개정).</div></div>
+      <div class="rule"><div class="rule-k">그로스업 · 배당세액공제</div><div class="rule-v"><span class="badge">계산 반영</span>법인세를 낸 국내 법인에서 직접 받은 배당 중 2,000만원을 넘는 부분에 <b>10%</b>를 더해 소득으로 잡고(이자 → 그로스업 대상이 아닌 배당 → 대상 배당 순으로 2,000만원을 채움), 같은 금액을 한도로 배당세액공제(산출세액 − B가 한도). ETF 분배금·해외주식 배당·국내상장 해외 ETF 매매차익·이자, 위탁관리·CR리츠와 투자회사(인프라 펀드 등)의 배당은 대상이 아닙니다(소득세법 시행령 제27조의3, 법인세법 제51조의2). 자기관리리츠는 법인세를 내므로 대상입니다. <b>2027년 1월 1일 이후 받는 배당부터는 11%</b>로 바뀝니다(소득세법 제17조 개정).</div></div>
       <div class="rule"><div class="rule-k">건강보험료율</div><div class="rule-v"><span class="badge">계산 반영</span>2026년 건강보험료율 <b>7.19%</b>, 장기요양보험료율 <b>0.9448%</b>(소득 대비, 건보료의 약 13.14%). 소득 보험료 상한 월 4,591,740원, 지역가입자 하한 월 20,160원.</div></div>
       <div class="rule"><div class="rule-k">직장가입자 소득월액</div><div class="rule-v"><span class="badge">계산 반영</span>월급(보수) 외 소득 합계가 <b>연 2,000만원을 넘으면</b> 넘는 부분에 보험료를 따로 매깁니다(본인 100% 부담). 소득월액 = (보수 외 소득 합계 − 2,000만원) ÷ 12 × 소득 종류별 평가율의 가중평균. 이자·배당·사업·기타 100%, 근로·공적연금 50%(국민건강보험법 제71조, 시행령 제41조 제4항, 시행규칙 제44조 제2항). 2,000만원 초과 여부는 <b>평가율을 곱하기 전</b> 금액으로 봅니다.</div></div>
       <div class="rule"><div class="rule-k">금융소득 1,000만원 규칙</div><div class="rule-v"><span class="badge">계산 반영</span>분리과세된 이자·배당 합계가 <b>1,000만원 이하면 건보료 소득에 넣지 않고</b>, 넘으면 1원부터 <b>전액</b> 넣습니다(시행규칙 제44조 제1항). 종합과세되면 배당소득금액(그로스업 포함)이 반영됩니다.</div></div>
@@ -1300,6 +1382,225 @@ function applyType() {
 }
 function rerender() { updateDisplays(); placeUnits(); render(); }
 
+// ============== 종목별 입력 · 그로스업 판정 ==============
+// 근거(2026-10-12 법령 원문 확인): 소득세법 제17조 제3항 — 국내 법인 배당(제1항 1~4호)만 배당가산.
+// ETF·펀드 이익(5호)·외국법인 배당(6호)은 대상 아님. 시행령 제27조의3 — 법인세법 제51조의2 소득공제 법인
+// (투자회사·위탁관리/CR리츠·선박투자회사 등)의 배당은 제외. 자기관리리츠는 소득공제 대상이 아니라 배당가산 대상.
+const UNI_BASE = 'https://ttokjaetv.github.io/portfolio-sheet-data/data/';
+const FUND_CO = { '088980': '인프라 투융자회사', '415640': '인프라 투융자회사', '094800': '부동산 투자회사' };
+const SELF_REIT = { '145270': true };   // 자기관리리츠
+const REIT_IND = ['부동산 임대 및 공급업', '신탁업 및 집합투자업'];
+const byId = id => document.getElementById(id);
+let MODE = 'amount';
+let UNI = null, UNI_MAP = null, UNI_STATE = 'idle', UNI_STAMP = '';
+let HOLD = [];   // { key, name, meta, auto: {g, tag, why}, g, amt(만원) }
+let SUG = [], SUG_I = -1, PICK = null;
+
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function parseCSV(text) {
+  const rows = []; let row = [], cur = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true;
+    else if (c === ',') { row.push(cur); cur = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cur); rows.push(row); row = []; cur = ''; }
+    else cur += c;
+  }
+  if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+  const head = (rows.shift() || []).map(h => h.replace(/^﻿/, '').trim());
+  return rows.filter(r => r.length > 1).map(r => Object.fromEntries(head.map((h, i) => [h, (r[i] || '').trim()])));
+}
+const norm = s => String(s).toLowerCase().replace(/[\s·\-_.(),&/]/g, '');
+const toMan = v => { const x = parseFloat(v); return isFinite(x) ? Math.max(0, Math.min(1e6, Math.round(x * 100) / 100)) : 0; };
+
+function grossUpVerdict(it) {
+  if (it.kind === 'etf') return { g: false, tag: '국내상장 ETF', why: 'ETF 분배금은 펀드 이익이라 대상 아님' };
+  if (it.kind === 'us') return { g: false, tag: '미국 직투', why: '해외 상장 종목의 배당이라 대상 아님' };
+  if (it.kind !== 'kr') return { g: false, tag: '목록에 없는 종목', why: '직접 골라 주세요 — ETF·ETN·펀드·해외주식은 대상 아님, 국내 상장 일반주식은 대상' };
+  const c = it.code;
+  if (/^9/.test(c)) return { g: false, tag: '외국기업(국내 상장)', why: '외국법인 배당이라 대상 아님' };
+  if (FUND_CO[c]) return { g: false, tag: FUND_CO[c], why: '배당 소득공제를 받는 투자회사라 대상 아님' };
+  if (SELF_REIT[c]) return { g: true, tag: '자기관리리츠', why: '법인세를 내는 리츠라 대상' };
+  if (/리츠/.test(it.name) && REIT_IND.includes(it.ind)) return { g: false, tag: '리츠', why: '위탁관리·CR리츠는 배당 소득공제를 받아 대상 아님' };
+  return { g: true, tag: '국내 상장주식', why: '국내 법인 배당이라 원칙상 대상(법인세 감면 법인은 예외)' };
+}
+
+function setHoldStatus() {
+  const el = byId('hold-status');
+  el.classList.toggle('err', UNI_STATE === 'err');
+  if (UNI_STATE === 'ok') el.textContent = `국내 상장주식·국내상장 ETF·미국 종목 ${UNI.length.toLocaleString()}개에서 찾습니다${UNI_STAMP ? ` (${UNI_STAMP.slice(0, 10)} 목록 기준)` : ''}.`;
+  else if (UNI_STATE === 'err') el.textContent = '종목 목록을 불러오지 못했습니다. 종목명을 그대로 추가하고 그로스업 대상 여부를 직접 고르세요.';
+  else el.textContent = '종목 목록을 불러오는 중입니다…';
+}
+async function loadUniverse() {
+  if (UNI_STATE === 'loading' || UNI_STATE === 'ok') return;
+  UNI_STATE = 'loading'; setHoldStatus();
+  try {
+    const get = f => fetch(UNI_BASE + f, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(f + ' ' + r.status); return r.text(); });
+    const [kr, etf, us] = await Promise.all(['kr_stocks.csv', 'etf_prices.csv', 'us_prices.csv'].map(get));
+    const list = [];
+    parseCSV(kr).forEach(r => {
+      const c = r['종목코드']; if (!c || !r['종목명']) return;
+      const mk = r['시장'] === '유가' ? '코스피' : (r['시장'] || '국내');
+      list.push({ kind: 'kr', key: 'k:' + c, code: c, name: r['종목명'], ind: r['업종'] || '', meta: `국내 상장주식 · ${mk} · ${c}`, short: `${mk} · ${c}` });
+      if (!UNI_STAMP && r['갱신시각']) UNI_STAMP = r['갱신시각'];
+    });
+    parseCSV(etf).forEach(r => {
+      const c = r['종목코드']; if (!c || !r['종목명']) return;
+      list.push({ kind: 'etf', key: 'e:' + c, code: c, name: r['종목명'], meta: `국내상장 ETF · ${c}`, short: `ETF · ${c}` });
+    });
+    parseCSV(us).forEach(r => {
+      const t = r['티커']; if (!t) return;
+      const nm = r['종목명'] || t;
+      list.push({ kind: 'us', key: 'u:' + t, code: t, name: nm, meta: `미국 직투 · ${r['구분'] || ''} · ${t}`, short: `미국 ${r['구분'] || ''} · ${t}` });
+    });
+    if (list.length < 1000) throw new Error('목록이 비정상적으로 적음');
+    list.forEach(it => { it.n = norm(it.name); it.c = norm(it.code); it.v = grossUpVerdict(it); });
+    UNI = list; UNI_MAP = new Map(list.map(it => [it.key, it]));
+    UNI_STATE = 'ok';
+    HOLD.forEach(h => { const it = UNI_MAP.get(h.key); if (it) { h.name = it.name; h.meta = it.meta; h.auto = it.v; } });
+    renderHold();
+    if (byId('hold-q') === document.activeElement && byId('hold-q').value.trim()) showSug();
+  } catch (e) { UNI_STATE = 'err'; }
+  setHoldStatus();
+}
+function searchUni(q) {
+  const n = norm(q); if (!n || !UNI) return [];
+  const out = [];
+  for (const it of UNI) {
+    let s = -1;
+    if (it.c === n) s = 0;
+    else if (it.n === n) s = 1;
+    else if (it.n.startsWith(n)) s = 2;
+    else if (n.length >= 2 && it.c.startsWith(n)) s = 3;
+    else if (n.length >= 2 && it.n.includes(n)) s = 4;
+    if (s >= 0) out.push([s, it.kind === 'us' ? 1 : 0, it.name.length, it]);
+  }
+  out.sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]);
+  return out.slice(0, 8).map(x => x[3]);
+}
+function hideSug() { byId('hold-sug').classList.add('is-hidden'); byId('hold-q').setAttribute('aria-expanded', 'false'); SUG = []; SUG_I = -1; }
+function showSug() {
+  const box = byId('hold-sug'), q = byId('hold-q').value.trim();
+  if (!q) { hideSug(); return; }
+  if (UNI_STATE !== 'ok') {
+    SUG = []; SUG_I = -1;
+    box.innerHTML = `<div class="sug-empty">${UNI_STATE === 'err' ? '종목 목록을 불러오지 못했습니다. [추가]를 누르면 이름 그대로 넣고 대상 여부를 직접 고를 수 있어요.' : '종목 목록을 불러오는 중입니다…'}</div>`;
+  } else {
+    SUG = searchUni(q); SUG_I = SUG.length ? 0 : -1;
+    box.innerHTML = SUG.length
+      ? SUG.map((it, i) => `<div class="sug-item${i === SUG_I ? ' on' : ''}" role="option" data-i="${i}"><span class="sug-name">${escapeHtml(it.name)}</span><span class="sug-meta">${escapeHtml(it.short)} · <b style="color:${it.v.g ? 'var(--accent)' : 'var(--green)'}">${it.v.g ? '대상' : '대상 아님'}</b></span></div>`).join('')
+      : '<div class="sug-empty">목록에 없는 종목입니다. [추가]를 누르면 이름 그대로 넣고 그로스업 대상 여부를 직접 고를 수 있어요.</div>';
+  }
+  box.classList.remove('is-hidden'); byId('hold-q').setAttribute('aria-expanded', 'true');
+}
+function moveSug(d) {
+  if (!SUG.length) return;
+  SUG_I = (SUG_I + d + SUG.length) % SUG.length;
+  byId('hold-sug').querySelectorAll('.sug-item').forEach((el, i) => { el.classList.toggle('on', i === SUG_I); if (i === SUG_I) el.scrollIntoView({ block: 'nearest' }); });
+}
+function pickSug(it) { PICK = it; byId('hold-q').value = it.name; hideSug(); byId('hold-amt').focus(); }
+function addHold() {
+  const qEl = byId('hold-q'), aEl = byId('hold-amt');
+  const q = qEl.value.trim();
+  if (!q) { qEl.focus(); return; }
+  const amt = toMan(aEl.value);
+  let it = PICK && PICK.name === q ? PICK : null;
+  if (!it && UNI) { const n = norm(q), r = searchUni(q); if (r.length && (r[0].c === n || r[0].n === n)) it = r[0]; }
+  let h;
+  if (it) h = { key: it.key, name: it.name, meta: it.meta, auto: it.v };
+  else { const nm = q.replace(/[~|]/g, ' ').slice(0, 40); h = { key: 'x:' + nm, name: nm, meta: '직접 입력', auto: grossUpVerdict({ kind: 'x' }) }; }
+  const ex = HOLD.find(x => x.key === h.key);
+  if (ex) ex.amt = toMan(ex.amt + amt);
+  else if (HOLD.length < 50) { h.g = h.auto.g; h.amt = amt; HOLD.push(h); }
+  qEl.value = ''; aEl.value = ''; PICK = null; hideSug();
+  renderHold(); applyHold(); qEl.focus();
+}
+function holdTotals() { let gu = 0, ot = 0; HOLD.forEach(h => { if (h.g) gu += h.amt; else ot += h.amt; }); return { gu: toMan(gu), ot: toMan(ot) }; }
+function renderHoldSum() {
+  const el = byId('hold-sum');
+  if (!HOLD.length) { el.innerHTML = '<span style="color:var(--ink-mute);font-weight:600;">아직 넣은 종목이 없습니다. 종목을 검색해 1년 배당과 함께 추가하세요.</span>'; return; }
+  const { gu, ot } = holdTotals();
+  el.innerHTML = `그로스업 대상 <b>${manText(gu * 1e4)}</b> → '국내 상장주식 직접 보유 배당' 칸 · 대상 아님 <b>${manText(ot * 1e4)}</b> → '그 밖의 배당' 칸`;
+}
+function renderHold() {
+  byId('hold-list').innerHTML = HOLD.map((h, i) => {
+    const ovr = h.g !== h.auto.g;
+    const why = ovr ? `직접 바꿈 · 자동 판정은 '${h.auto.g ? '그로스업 대상' : '대상 아님'}'(${escapeHtml(h.auto.tag)})` : `${escapeHtml(h.auto.tag)} — ${escapeHtml(h.auto.why)}`;
+    return `<div class="hold-row${h.g ? ' gu' : ''}" data-i="${i}">
+      <div class="hr-name"><b title="${escapeHtml(h.name)}">${escapeHtml(h.name)}</b><span>${escapeHtml(h.meta)}</span></div>
+      <div class="hr-verdict"><select data-act="g" aria-label="${escapeHtml(h.name)} 그로스업 판정"><option value="1"${h.g ? ' selected' : ''}>그로스업 대상</option><option value="0"${h.g ? '' : ' selected'}>대상 아님</option></select><div class="hr-why${ovr ? ' ovr' : ''}">${why}</div></div>
+      <div class="hr-amt"><input type="number" data-act="amt" value="${h.amt}" min="0" step="10" inputmode="decimal" aria-label="${escapeHtml(h.name)} 1년 배당(만원)"><span>만원</span></div>
+      <button type="button" class="hr-del" data-act="del" aria-label="${escapeHtml(h.name)} 삭제">✕</button>
+    </div>`;
+  }).join('');
+  renderHoldSum();
+}
+function applyHold() {
+  if (MODE === 'hold') {
+    const { gu, ot } = holdTotals();
+    byId('divgu').value = String(gu); byId('divoth').value = String(ot);
+  }
+  renderHoldSum(); rerender();
+}
+function setMode(m) {
+  MODE = m === 'hold' ? 'hold' : 'amount';
+  document.body.classList.toggle('mode-hold', MODE === 'hold');
+  document.querySelectorAll('.seg-btn').forEach(b => { const on = b.dataset.mode === MODE; b.classList.toggle('active', on); b.setAttribute('aria-selected', String(on)); });
+  byId('hold-panel').classList.toggle('is-hidden', MODE !== 'hold');
+  ['divgu', 'divoth'].forEach(id => { const el = byId(id); el.readOnly = MODE === 'hold'; el.classList.toggle('locked', MODE === 'hold'); });
+  if (MODE === 'hold') { setHoldStatus(); renderHold(); loadUniverse(); }
+  applyHold();
+}
+function readHoldParam(s) {
+  HOLD = [];
+  String(s || '').split('~').slice(0, 50).forEach(part => {
+    const [key, a, g] = part.split('|');
+    if (!/^[keux]:.{1,40}$/.test(key || '')) return;
+    const kind = { k: 'kr', e: 'etf', u: 'us', x: 'x' }[key[0]];
+    const gv = g === '1';
+    const auto = kind === 'x' ? grossUpVerdict({ kind: 'x' }) : { g: gv, tag: '불러오는 중', why: '종목 정보를 불러오면 판정 근거가 표시됩니다' };
+    HOLD.push({ key, name: key.slice(2), meta: kind === 'x' ? '직접 입력' : '', auto, g: gv, amt: toMan(a) });
+  });
+}
+function bindHold() {
+  document.querySelectorAll('.seg-btn').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  const q = byId('hold-q');
+  q.addEventListener('focus', loadUniverse);
+  q.addEventListener('input', () => { PICK = null; showSug(); });
+  q.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); moveSug(1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); moveSug(-1); }
+    else if (e.key === 'Escape') hideSug();
+    else if (e.key === 'Enter') { e.preventDefault(); if (SUG_I >= 0 && SUG[SUG_I]) pickSug(SUG[SUG_I]); else if (q.value.trim()) { hideSug(); byId('hold-amt').focus(); } }
+  });
+  q.addEventListener('blur', () => setTimeout(hideSug, 150));
+  byId('hold-sug').addEventListener('mousedown', e => {
+    const el = e.target.closest('.sug-item'); if (!el) return;
+    e.preventDefault(); const it = SUG[+el.dataset.i]; if (it) pickSug(it);
+  });
+  const amt = byId('hold-amt');
+  amt.addEventListener('input', placeUnits);
+  amt.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addHold(); } });
+  byId('hold-add').addEventListener('click', addHold);
+  const list = byId('hold-list');
+  list.addEventListener('input', e => {
+    if (e.target.dataset.act !== 'amt') return;
+    const h = HOLD[+e.target.closest('.hold-row').dataset.i]; if (!h) return;
+    h.amt = toMan(e.target.value); applyHold();
+  });
+  list.addEventListener('change', e => {
+    if (e.target.dataset.act !== 'g') return;
+    const h = HOLD[+e.target.closest('.hold-row').dataset.i]; if (!h) return;
+    h.g = e.target.value === '1'; renderHold(); applyHold();
+  });
+  list.addEventListener('click', e => {
+    const b = e.target.closest('[data-act="del"]'); if (!b) return;
+    HOLD.splice(+b.closest('.hold-row').dataset.i, 1); renderHold(); applyHold();
+  });
+}
+
 // ============== 결과 복사 · 링크 ==============
 function copyText(text, btn, label) {
   const done = ok => { btn.textContent = ok ? '복사했습니다' : '복사 실패 — 직접 복사하세요'; setTimeout(() => btn.textContent = label, 1800); };
@@ -1317,6 +1618,7 @@ function resultText() {
   const lines = [
     `[금융소득종합과세·건보료 계산 (${RULE.year}년 귀속 기준)]`,
     `금융소득 ${manText(t.F)} (이자 ${manText(t.I)} · 국내주식 배당 ${manText(t.DG)} · 그 밖의 배당 ${manText(t.DO)})`,
+    ...(MODE === 'hold' && HOLD.length ? [`종목: ${HOLD.map(h => `${h.name} ${manText(h.amt * 1e4)}(${h.g ? '그로스업 대상' : '대상 아님'})`).join(', ')}`] : []),
     `다른 종합소득 과세표준 ${manText(t.O)} · ${TYPE_NAME[inp.type]}`,
     `→ ${t.comp ? '종합과세 대상' : '분리과세(종합과세 아님)'}`,
     `추가 세금 ${won(t.extraTotal)} (국세 ${won(t.extra)} + 지방세 ${won(t.extraLocal)})`,
@@ -1333,6 +1635,7 @@ function buildUrl() {
   if (TYPE === 'work') { p.set('wb', g('w-biz')); p.set('ww', g('w-wage')); p.set('wp', g('w-pen')); }
   else if (TYPE === 'regional') { p.set('rp', g('r-pen')); p.set('rw', g('r-wage')); p.set('rb', g('r-biz')); }
   else { p.set('dp', g('d-pen')); p.set('dw', g('d-wage')); p.set('dt', g('d-oth')); p.set('dr', document.getElementById('d-bizreg').value); p.set('db', g('d-biz')); p.set('dv', g('d-prop')); }
+  if (MODE === 'hold') { p.set('m', 'h'); if (HOLD.length) p.set('h', HOLD.map(h => [h.key, h.amt, h.g ? 1 : 0].join('|')).join('~')); }
   return location.href.split('?')[0].split('#')[0] + '?' + p.toString();
 }
 function syncUrl() { try { history.replaceState(null, '', buildUrl()); } catch (e) { /* file:// 등 */ } }
@@ -1347,6 +1650,7 @@ function readUrl() {
   });
   if (q.get('dr') === '1' || q.get('dr') === '0') document.getElementById('d-bizreg').value = q.get('dr');
   const t = q.get('t'); if (['work', 'regional', 'dep'].includes(t)) TYPE = t;
+  if (q.get('m') === 'h') { MODE = 'hold'; readHoldParam(q.get('h')); }
 }
 
 function bindEvents() {
@@ -1367,7 +1671,8 @@ window.addEventListener('DOMContentLoaded', () => {
   readUrl();
   applyType();
   bindEvents();
-  rerender();
+  bindHold();
+  setMode(MODE);
 });
 </script>
 </body>
