@@ -546,6 +546,7 @@
         </div>
       </div>
     </div>
+    <div class="head-msg is-hidden" id="nh-warn" role="status"></div>
   </div>
 
   <!-- STEP 03 : 결과 -->
@@ -646,7 +647,7 @@
 
   <!-- 세법 기준 -->
   <div class="card">
-    <div class="step-label"><div class="step-line"></div><span class="step-text">확인한 세법·건보료 기준 (2026년 10월 12일 확인)</span></div>
+    <div class="step-label"><div class="step-line"></div><span class="step-text">확인한 세법·건보료 기준 (2026년 10월 17일 확인)</span></div>
     <h3 class="chart-title">이 계산기가 따르는 규칙</h3>
     <p class="chart-subtitle">2026년에 받은 금융소득(2027년 5월 종합소득세 신고) 기준입니다. 세법·건보료 기준은 자주 바뀌니 실제 신고·판정 전에는 국세청 홈택스와 국민건강보험공단(1577-1000)에서 다시 확인하세요.</p>
     <div class="rule-list">
@@ -654,10 +655,10 @@
       <div class="rule"><div class="rule-k">기본세율</div><div class="rule-v"><span class="badge">계산 반영</span>과세표준 1,400만원 이하 6% · 5,000만원 15% · 8,800만원 24% · 1억5천만원 35% · 3억 38% · 5억 40% · 10억 42% · 초과 45%. 지방소득세는 소득세의 10%.</div></div>
       <div class="rule"><div class="rule-k">비교과세</div><div class="rule-v"><span class="badge">계산 반영</span>산출세액 = max(A, B). <b>A</b> = 2,000만원 × 14% + (종합소득 과세표준 − 2,000만원) × 기본세율, <b>B</b> = 금융소득 × 14% + (종합소득 과세표준 − 금융소득금액) × 기본세율(소득세법 제62조). 그래서 다른 소득이 적으면 2,000만원을 넘어도 추가 세금이 0원인 구간이 생깁니다.</div></div>
       <div class="rule"><div class="rule-k">그로스업 · 배당세액공제</div><div class="rule-v"><span class="badge">계산 반영</span>법인세를 낸 국내 법인에서 직접 받은 배당 중 2,000만원을 넘는 부분에 <b>10%</b>를 더해 소득으로 잡고(이자 → 그로스업 대상이 아닌 배당 → 대상 배당 순으로 2,000만원을 채움), 같은 금액을 한도로 배당세액공제(산출세액 − B가 한도). ETF 분배금·해외주식 배당·국내상장 해외 ETF 매매차익·이자, 위탁관리·CR리츠와 투자회사(인프라 펀드 등)의 배당은 대상이 아닙니다(소득세법 시행령 제27조의3, 법인세법 제51조의2). 자기관리리츠는 법인세를 내므로 대상입니다. <b>2027년 1월 1일 이후 받는 배당부터는 11%</b>로 바뀝니다(소득세법 제17조 개정).</div></div>
-      <div class="rule"><div class="rule-k">건강보험료율</div><div class="rule-v"><span class="badge">계산 반영</span>2026년 건강보험료율 <b>7.19%</b>, 장기요양보험료율 <b>0.9448%</b>(소득 대비, 건보료의 약 13.14%). 소득 보험료 상한 월 4,591,740원, 지역가입자 하한 월 20,160원.</div></div>
+      <div class="rule"><div class="rule-k">건강보험료율</div><div class="rule-v"><span class="badge">계산 반영</span>2026년 건강보험료율 <b>7.19%</b>, 장기요양보험료율 <b>0.9448%</b>(소득 대비, 건보료의 약 13.14%). 소득 보험료 상한 월 4,591,740원, 지역가입자 하한 월 20,160원(월별 건강보험료액의 상한과 하한에 관한 고시). 건강보험료·장기요양보험료는 각각 10원 미만을 버립니다.</div></div>
       <div class="rule"><div class="rule-k">직장가입자 소득월액</div><div class="rule-v"><span class="badge">계산 반영</span>월급(보수) 외 소득 합계가 <b>연 2,000만원을 넘으면</b> 넘는 부분에 보험료를 따로 매깁니다(본인 100% 부담). 소득월액 = (보수 외 소득 합계 − 2,000만원) ÷ 12 × 소득 종류별 평가율의 가중평균. 이자·배당·사업·기타 100%, 근로·공적연금 50%(국민건강보험법 제71조, 시행령 제41조 제4항, 시행규칙 제44조 제2항). 2,000만원 초과 여부는 <b>평가율을 곱하기 전</b> 금액으로 봅니다.</div></div>
       <div class="rule"><div class="rule-k">금융소득 1,000만원 규칙</div><div class="rule-v"><span class="badge">계산 반영</span>분리과세된 이자·배당 합계가 <b>1,000만원 이하면 건보료 소득에 넣지 않고</b>, 넘으면 1원부터 <b>전액</b> 넣습니다(시행규칙 제44조 제1항). 종합과세되면 배당소득금액(그로스업 포함)이 반영됩니다.</div></div>
-      <div class="rule"><div class="rule-k">지역가입자</div><div class="rule-v"><span class="badge">계산 반영</span>소득 보험료 = 연 소득(이자·배당·사업·기타 100%, 근로·공적연금 50%) ÷ 12 × 7.19%. 소득월액이 28만원 이하면 하한 보험료(월 20,160원). 재산 보험료(부과점수당 211.5원)는 금융소득과 무관해 넣지 않았습니다.</div></div>
+      <div class="rule"><div class="rule-k">지역가입자</div><div class="rule-v"><span class="badge">계산 반영</span>소득 보험료 = 연 소득(이자·배당·사업·기타 100%, 근로·공적연금 50%) ÷ 12 × 7.19%. 소득월액이 28만원 이하이거나 계산한 건강보험료가 월 20,160원보다 적으면 하한 보험료(월 20,160원). 재산 보험료(부과점수당 211.5원)는 금융소득과 무관해 넣지 않았습니다.</div></div>
       <div class="rule"><div class="rule-k">피부양자 자격</div><div class="rule-v"><span class="badge">계산 반영</span>① 소득 합계 <b>연 2,000만원 이하</b>(공적연금·근로·기타 100% 합산, 사적연금 제외, 금융소득은 1,000만원 넘으면 전액) ② 사업자등록이 있으면 사업소득 0원, 없으면 연 500만원 이하 ③ 재산세 과세표준 5.4억원 이하, 5.4억~9억원이면 소득 1,000만원 이하, 9억원 초과는 탈락. 탈락하면 지역가입자로 바뀝니다. 형제자매·부양 관계 요건은 넣지 않았습니다.</div></div>
       <div class="rule"><div class="rule-k">반영 시기</div><div class="rule-v">건보료는 국세청 소득 자료가 넘어오는 대로 반영됩니다. 2026년 소득은 보통 <b>2027년 11월분부터 1년 동안</b>의 보험료에 반영됩니다(시행령 제41조 제3항).</div></div>
       <div class="rule"><div class="rule-k">고배당기업 배당 분리과세</div><div class="rule-v"><span class="badge warn">계산 미반영</span>조세특례제한법 제104조의27 신설 — 배당성향 40% 이상(또는 25% 이상이면서 배당 10% 이상 증가) 등 요건을 갖춘 상장법인에서 <b>직접 받은 현금배당</b>은 2026년 1월 1일 이후 지급분부터 종합과세 대신 14%(2,000만원 이하)·20%(3억원 이하)·25%(50억원 이하)·30%로 분리과세할 수 있습니다(2028년까지 한시). ETF·펀드·리츠 분배금, 해외주식 배당은 대상이 아닙니다. 해당 배당이 있다면 실제 세금은 이 계산과 다를 수 있습니다.</div></div>
@@ -669,7 +670,7 @@
       <a href="https://kbthink.com/investment/issues/dividend-income-separate-taxation.html" target="_blank" rel="noopener">KB증권 배당소득 분리과세 정리</a> ·
       <a href="https://mobile.newsis.com/view/NISX20260115_0003478692" target="_blank" rel="noopener">뉴시스 고배당기업 시행령(2026-01-15, 펀드·리츠 제외)</a> ·
       <a href="https://v.daum.net/v/20260108073101557" target="_blank" rel="noopener">배당 분리과세·건보료 Q&amp;A(2026-01-08)</a> ·
-      <a href="https://www.nhis.or.kr/renewal_popup/poster/20260204_poster_longdesc_1.html" target="_blank" rel="noopener">국민건강보험공단 2026 달라지는 제도(보험료율·상하한)</a> ·
+      <a href="https://www.nhis.or.kr/renewal_popup/poster/20260204_poster_longdesc_1.html" target="_blank" rel="noopener">국민건강보험공단 2026 달라지는 제도(보험료율·상하한)</a> · <a href="https://www.nhis.or.kr/lm/lmxsrv/law/lawFullContent.do?SEQ=39" target="_blank" rel="noopener">월별 건강보험료액의 상한과 하한에 관한 고시(2026-10-17 열람)</a> ·
       <a href="https://www.nhis.or.kr/lm/lmxsrv/law/lawLinkContentView.do?SEQ=28&amp;LINKCODE=c004100000" target="_blank" rel="noopener">국민건강보험법 시행령 제41조(공단 법령)</a> ·
       <a href="https://www.nepla.ai/wiki/복지와-건강/사회복지/-유권해석-국민건강보험법-시행규칙-제44조-소득-산정방법-및-평가기준-ov59rpxq3n06" target="_blank" rel="noopener">시행규칙 제44조(평가율·1,000만원)</a> ·
       <a href="https://www.nepla.ai/wiki/복지와-건강/사회복지/-유권해석-국민건강보험법-시행규칙-제44조-소득-산정방법-및-평가기준/-법제처-유권해석-국민건강보험법-에-따른-피부양자-인정기준-소득산정-시-근로소득과-연금소득에-대하여-해당-소득의-100분의-30을-적용해야-하는지-여부-국민건강보험법-시행규칙-제44조-등-관련-jxm9lw5g8pgr" target="_blank" rel="noopener">법제처 해석 19-0263(피부양자 소득 100% 합산)</a> ·
@@ -684,8 +685,8 @@
     <div class="formula">금융소득 2,000만원 이하 → 원천징수 15.4%로 끝 (추가 0원)<br>2,000만원 초과 → 산출세액 = max(A, B) − 배당세액공제 = 결정세액<br>추가 세금(국세) = 결정세액 − 다른 소득만 있을 때 세금 − 이미 원천징수된 14%<br>지방소득세 = 추가 국세 × 10%</div>
     <p>'다른 소득만 있을 때 세금'과 비교하므로 근로소득세액공제·자녀세액공제처럼 다른 소득에 붙는 공제는 양쪽에서 같이 빠져 결과에 거의 영향을 주지 않습니다. 원천징수된 15.4%는 이미 낸 돈이라 '추가 세금'에 넣지 않았고, 실질 부담률에는 포함했습니다.</p>
     <h4>2. 건강보험료 — '금융소득 때문에 늘어나는 보험료'</h4>
-    <div class="formula">직장: 월 = (보수 외 소득 합계 − 2,000만원) ÷ 12 × 평가율 가중평균 × (7.19% + 0.9448%)<br>지역: 월 = 반영 소득 ÷ 12 × (7.19% + 0.9448%) — 소득월액 28만원 이하면 하한 20,160원(+장기요양)<br>피부양자: 자격 유지면 0원, 탈락하면 지역가입자 소득 보험료<br>증가분 = (지금 금융소득이 있을 때) − (금융소득이 0원일 때)</div>
-    <p>보험료는 원 단위로 반올림해 보여 줍니다. 실제 고지서는 10원 미만 절사 등 끝수 처리로 몇 십원 차이 날 수 있습니다.</p>
+    <div class="formula">직장: 월 = (보수 외 소득 합계 − 2,000만원) ÷ 12 × 평가율 가중평균 × (7.19% + 0.9448%)<br>지역: 월 = 반영 소득 ÷ 12 × (7.19% + 0.9448%) — 하한 건강보험료 20,160원(+장기요양)<br>피부양자: 자격 유지면 0원, 탈락하면 지역가입자 소득 보험료<br>증가분 = (지금 금융소득이 있을 때) − (금융소득이 0원일 때)</div>
+    <p>고지서처럼 월 건강보험료와 장기요양보험료를 <b>각각 10원 미만 버림</b>으로 계산합니다(장기요양보험료는 버림한 건강보험료에 0.9448 ÷ 7.19를 곱한 뒤 다시 버림). 실제 고지서와는 경감·정산 등으로 차이가 날 수 있습니다.</p>
     <h4>3. 차트·구간표</h4>
     <p>이자와 국내주식 배당은 입력값 그대로 두고 <b>그 밖의 배당만 늘린다</b>고 가정해 금융소득 0원~1억원(입력값이 더 크면 그 위까지)을 500만원 간격으로 계산했습니다. 합계가 입력한 이자·국내주식 배당보다 작은 구간은 이자부터 채웠습니다.</p>
     <h4>계산에 넣지 않은 것</h4>
@@ -851,13 +852,18 @@ function finTax(x) {
 }
 // 건보료에 잡히는 금융소득 (1,000만원 이하 제외, 넘으면 전액 · 종합과세면 그로스업 포함)
 function nhFinCounted(t) { return t.F <= RULE.nhFinMin ? 0 : (t.comp ? t.finAmt : t.F); }
-// 소득월액 → 월 건강보험료·장기요양보험료
+// 고지서처럼 10원 미만 버림
+const floor10 = v => Math.floor(v / 10 + 1e-9) * 10;
+// 소득월액 → 월 건강보험료·장기요양보험료 (각각 10원 미만 절사, 장기요양은 절사된 건보료 기준)
 function nhPremium(m, regional) {
   let h = Math.max(0, m) * RULE.hi;
-  if (regional && m <= RULE.floorIncome) h = RULE.hiFloor;
-  h = Math.min(RULE.hiCap, h);
-  const l = h * RULE.ltc / RULE.hi;
-  return { health: h, ltc: l, monthly: h + l, annual: (h + l) * 12 };
+  // 지역가입자: 소득월액 28만원 이하이거나, 계산값이 하한보다 작으면 하한 보험료
+  const atFloor = !!regional && (m <= RULE.floorIncome || h < RULE.hiFloor);
+  if (atFloor) h = RULE.hiFloor;
+  const atCap = h > RULE.hiCap;
+  h = floor10(Math.min(RULE.hiCap, h));
+  const l = floor10(h * RULE.ltc / RULE.hi);
+  return { health: h, ltc: l, monthly: h + l, annual: (h + l) * 12, atFloor, atCap };
 }
 // type: 'work'(직장) | 'regional'(지역) | 'dep'(피부양자)
 // o = { biz(사업·임대·기타), wage(근로), pension(공적연금), other(기타·피부양자), bizReg(true/false), prop(재산세 과세표준) }
@@ -994,12 +1000,28 @@ function render() {
   document.getElementById('s4-value').textContent = F > 0 ? pct(burden) : '-';
   document.getElementById('s4-sub').innerHTML = F > 0 ? `원천징수 15.4% 포함<br>추가분만 보면 ${pct(res.total / F * 100)}` : '';
 
+  renderNhWarn(inp, res);
   renderRoom(res);
   renderTaxTable(t);
   renderNh(res);
   drawBand(inp);
   renderInsight(inp, res);
   syncUrl();
+}
+
+// 지역·피부양자: 세금용 '다른 종합소득 과세표준'은 있는데 건보료용 소득칸이 모두 비어 있으면 경고
+function renderNhWarn(inp, res) {
+  const el = document.getElementById('nh-warn');
+  if (!el) return;
+  const nh = inp.nh || {};
+  const nhOther = (nh.biz || 0) + (nh.wage || 0) + (nh.pension || 0) + (nh.other || 0);
+  const show = (TYPE === 'regional' || TYPE === 'dep') && inp.otherBase > 0 && nhOther <= 0;
+  el.classList.toggle('is-hidden', !show);
+  if (!show) { el.innerHTML = ''; return; }
+  const ob = manText(inp.otherBase);
+  el.innerHTML = TYPE === 'regional'
+    ? `<b>확인해 주세요</b> — 위에 다른 종합소득 과세표준(${ob})을 넣었는데, 지역가입자 건보료용 소득칸(공적연금·근로·사업·임대·기타)이 모두 0입니다. 그 소득이 사업·임대·근로·공적연금이라면 위 칸에 <b>소득금액(또는 연 수령액)</b>을 넣어 주세요. 비워 두면 '금융소득이 없을 때' 건보료를 하한 보험료로 잡아, <b>건보료 증가분이 실제보다 적게</b> 나올 수 있습니다(최대 연 ${manText((RULE.hiFloor + floor10(RULE.hiFloor * RULE.ltc / RULE.hi)) * 12)}). 과세표준은 공제를 뺀 값이라 건보료 소득과 기준이 다릅니다.`
+    : `<b>확인해 주세요</b> — 위에 다른 종합소득 과세표준(${ob})을 넣었는데, 피부양자 판정용 소득칸(공적연금·근로·기타·사업)이 모두 0입니다. 근로·사업·연금 등 다른 소득이 있다면 <b>금융소득과 관계없이 피부양자 요건을 넘을 수 있으니</b> 위 칸에 소득금액(또는 연 수령액)을 넣어 주세요. 비워 두면 자격 유지·탈락 판정과 건보료 증가분이 실제와 달라질 수 있습니다.`;
 }
 
 function nhSentence(res) {
@@ -1077,7 +1099,7 @@ function renderNh(res) {
   const title = document.getElementById('nh-title'), subt = document.getElementById('nh-subtitle');
   const body = document.getElementById('nh-body'), note = document.getElementById('nh-note');
   const checks = document.getElementById('dep-checks');
-  const finLine = row('건보료에 잡히는 금융소득', res.t.F <= RULE.nhFinMin ? `${won(res.t.F)} — 1,000만원 이하라 제외` : (res.t.comp ? `1,000만원 초과 → 전액, 종합과세라 그로스업 포함(${won(res.t.finAmt)})` : `1,000만원 초과 → 전액 ${won(res.t.F)}`), won(res.fin));
+  const finLine = row('건보료에 잡히는 금융소득', res.t.F <= RULE.nhFinMin ? `${won(res.t.F)} — 1,000만원 이하라 제외` : (res.t.comp ? (res.t.gu > 0 ? `1,000만원 초과 → 전액. 실제 받은 ${won(res.t.F)} + 배당가산액(그로스업) ${won(res.t.gu)}<br><span style="font-weight:600;">종합과세되면 건보료도 세금 계산과 같은 배당소득금액(그로스업 포함)으로 매깁니다(시행규칙 제44조 제1항).</span>` : `1,000만원 초과 → 전액 ${won(res.t.F)} (국내주식 직접 배당이 없어 배당가산액 0원)`) : `1,000만원 초과 → 전액 ${won(res.t.F)}`), won(res.fin));
   let h = finLine;
   checks.classList.toggle('is-hidden', TYPE !== 'dep');
   if (TYPE === 'work') {
@@ -1095,7 +1117,7 @@ function renderNh(res) {
     h += row('사업·임대·기타소득', '100% 반영', won(inp.nh.biz));
     h += row('근로소득 · 공적연금', `50% 반영 (${won(inp.nh.wage)} + ${won(inp.nh.pension)})`, won(0.5 * (inp.nh.wage + inp.nh.pension)));
     h += row('반영 소득 합계', '', won(n.ev));
-    h += row('소득월액', `${won(n.ev)} ÷ 12${n.m <= RULE.floorIncome ? ' → 28만원 이하라 하한 보험료' : ''}`, won(n.m));
+    h += row('소득월액', `${won(n.ev)} ÷ 12${n.atFloor ? ' → 하한 보험료 적용' : ''}`, won(n.m));
   } else {
     title.textContent = n.eligible ? '피부양자 — 자격 유지 (건보료 0원)' : (o.eligible ? '피부양자 — 금융소득 때문에 자격 탈락' : '피부양자 — 이미 요건 초과');
     subt.textContent = '피부양자는 보험료를 내지 않지만, 아래 요건 중 하나라도 넘으면 지역가입자로 바뀌어 보험료(소득 + 재산)를 냅니다.';
@@ -1120,12 +1142,12 @@ function renderNh(res) {
       return;
     }
     h += row('지역가입자 반영 소득', '금융·사업·기타 100% + 근로·연금 50%', won(n.ev));
-    h += row('소득월액', `${won(n.ev)} ÷ 12${n.m <= RULE.floorIncome ? ' → 28만원 이하라 하한' : ''}`, won(n.m));
+    h += row('소득월액', `${won(n.ev)} ÷ 12${n.atFloor ? ' → 하한 보험료 적용' : ''}`, won(n.m));
   }
-  h += row('월 건강보험료', TYPE === 'work' ? '소득월액 × 7.19%' : (n.m <= RULE.floorIncome ? '하한 20,160원' : '소득월액 × 7.19%'), won(n.health));
-  h += row('월 장기요양보험료', '건강보험료 × 0.9448 ÷ 7.19', won(n.ltc));
+  h += row('월 건강보험료', n.atCap ? '상한 4,591,740원' : TYPE === 'work' ? '소득월액 × 7.19% (10원 미만 절사)' : (n.atFloor ? '하한 20,160원' : '소득월액 × 7.19% (10원 미만 절사)'), won(n.health));
+  h += row('월 장기요양보험료', '건강보험료 × 0.9448 ÷ 7.19 (10원 미만 절사)', won(n.ltc));
   h += row('월 합계 (지금 금융소득 기준)', '', won(n.monthly));
-  h += row('금융소득이 0원이라면', TYPE === 'dep' ? (o.eligible ? '피부양자 자격 유지 → 0원' : '지역가입자 소득 보험료') : '같은 계산을 금융소득 없이', won(o.monthly));
+  h += row('금융소득이 0원이라면', TYPE === 'dep' ? (o.eligible ? '피부양자 자격 유지 → 0원' : '지역가입자 소득 보험료') : (TYPE === 'regional' && o.atFloor ? '금융소득 없으면 하한 보험료(20,160원 + 장기요양)' : '같은 계산을 금융소득 없이'), won(o.monthly));
   h += row('금융소득 때문에 늘어나는 건보료', `월 ${won(res.dNh / 12)} × 12개월`, '연 ' + won(res.dNh), 'sum');
   body.innerHTML = h;
   note.innerHTML = TYPE === 'work'
