@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<script src="https://ttokjaetv.github.io/member-lock.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>금융소득종합과세·건보료 계산기 · 똑재TV</title>
 <meta name="description" content="이자·배당·ETF 분배금이 연 2,000만원을 넘으면 세금이 얼마나 늘고, 건강보험료는 얼마나 오르는지 한 번에 계산합니다. 비교과세·그로스업·배당세액공제, 직장·지역·피부양자 건보료까지 2026년 기준.">
@@ -368,7 +369,7 @@
     <p class="card-subtitle">금액은 모두 <strong>만원 단위, 세금 떼기 전(세전)</strong> 연간 금액입니다. 같은 해(1~12월)에 받은 돈 기준이며, 부부라도 <b>사람마다 따로</b> 계산합니다.</p>
     <div class="seg" role="tablist" aria-label="배당 입력 방식">
       <button type="button" class="seg-btn active" data-mode="amount" role="tab">금액으로 입력</button>
-      <button type="button" class="seg-btn" data-mode="hold" role="tab">종목으로 입력 <span class="seg-sub">그로스업 자동 판정</span></button>
+      <button type="button" class="seg-btn" data-mode="hold" role="tab" data-member-click="종목 검색으로 입력">종목으로 입력 <span class="seg-sub">그로스업 자동 판정</span></button>
     </div>
     <div class="grid-3">
       <div class="input-group">
@@ -569,7 +570,7 @@
     <div class="room"><div class="room-k">건보료 1,000만원 경계까지 남은 여유</div><div class="room-v" id="room2-v">-</div><div class="room-d" id="room2-d"></div></div>
   </div>
 
-  <div class="card">
+  <div class="card" data-member="세금·건보료 상세 계산 내역">
     <div class="step-label"><div class="step-line"></div><span class="step-text">세금 계산 내역</span></div>
     <h3 class="chart-title" id="tax-title">종합소득세는 이렇게 계산했습니다</h3>
     <p class="chart-subtitle" id="tax-subtitle">-</p>
@@ -578,7 +579,7 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" data-member="세금·건보료 상세 계산 내역">
     <div class="step-label"><div class="step-line"></div><span class="step-text">건강보험료 계산 내역</span></div>
     <h3 class="chart-title" id="nh-title">-</h3>
     <p class="chart-subtitle" id="nh-subtitle">-</p>
@@ -600,11 +601,11 @@
     <h3 class="chart-title">금융소득 구간별 한눈에 보기</h3>
     <p class="chart-subtitle" id="band-subtitle">-</p>
     <div class="dl-bar">
-      <button type="button" class="dl-btn" id="dl-csv">CSV 내려받기</button>
-      <button type="button" class="dl-btn" id="dl-xlsx">엑셀(.xlsx) 내려받기</button>
+      <button type="button" class="dl-btn" id="dl-csv" data-member-click="엑셀 내려받기">CSV 내려받기</button>
+      <button type="button" class="dl-btn" id="dl-xlsx" data-member-click="엑셀 내려받기">엑셀(.xlsx) 내려받기</button>
       <span class="dl-note">엑셀에는 구간표와 세금·건보료 계산 내역이 함께 들어갑니다 (원 단위 숫자)</span>
     </div>
-    <div class="table-wrap">
+    <div class="table-wrap" data-member="금융소득 구간표">
       <table class="data-table">
         <thead><tr><th>금융소득 (연)</th><th>과세 방식</th><th>추가 세금</th><th>건보료 증가 (연)</th><th>늘어나는 돈 합계</th><th>실질 부담률</th></tr></thead>
         <tbody id="band-body"></tbody>
@@ -1672,7 +1673,11 @@ function readUrl() {
   });
   if (q.get('dr') === '1' || q.get('dr') === '0') document.getElementById('d-bizreg').value = q.get('dr');
   const t = q.get('t'); if (['work', 'regional', 'dep'].includes(t)) TYPE = t;
-  if (q.get('m') === 'h') { MODE = 'hold'; readHoldParam(q.get('h')); }
+  if (q.get('m') === 'h') {
+    // 멤버십 잠금: 잠긴 상태면 종목 입력 대신 금액 입력으로 열고 안내 (금액 dg·do 는 위에서 그대로 받음)
+    if (window.TJLock && TJLock.locked()) TJLock.prompt('종목 검색으로 입력');
+    else { MODE = 'hold'; readHoldParam(q.get('h')); }
+  }
 }
 
 function bindEvents() {
