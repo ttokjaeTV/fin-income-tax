@@ -531,14 +531,14 @@
       </div>
       <div class="grid-3" style="margin-top:4px;">
         <div class="input-group">
-          <label class="label" for="d-bizreg">사업자등록</label>
-          <select id="d-bizreg"><option value="0">없음</option><option value="1">있음 (임대사업 포함)</option></select>
-          <div class="input-hint">등록돼 있으면 사업소득이 1원만 있어도 탈락</div>
+          <label class="label" for="d-bizreg">사업자등록 · 주택임대소득</label>
+          <select id="d-bizreg"><option value="0">둘 다 없음</option><option value="1">사업자등록 또는 주택임대소득 있음</option></select>
+          <div class="input-hint">하나라도 해당하면 사업소득이 1원만 있어도 탈락 (주택임대는 등록 안 해도 해당). 둘 다 없으면 연 500만원까지</div>
         </div>
         <div class="input-group">
           <label class="label" for="d-biz">사업소득 (임대 포함)</label>
           <div class="input-wrap"><input type="number" id="d-biz" data-unit="만원" data-fmt="man" value="0" step="50" min="0" inputmode="decimal"><span class="input-currency" id="d-biz-display">-</span></div>
-          <div class="input-hint">소득금액 · 등록 없으면 연 500만원까지 인정</div>
+          <div class="input-hint">소득금액 · 사업자등록·주택임대 둘 다 없으면 연 500만원까지 인정</div>
         </div>
         <div class="input-group">
           <label class="label" for="d-prop">재산세 과세표준 합계 (선택)</label>
@@ -660,7 +660,7 @@
       <div class="rule"><div class="rule-k">직장가입자 소득월액</div><div class="rule-v"><span class="badge">계산 반영</span>월급(보수) 외 소득 합계가 <b>연 2,000만원을 넘으면</b> 넘는 부분에 보험료를 따로 매깁니다(본인 100% 부담). 소득월액 = (보수 외 소득 합계 − 2,000만원) ÷ 12 × 소득 종류별 평가율의 가중평균. 이자·배당·사업·기타 100%, 근로·공적연금 50%(국민건강보험법 제71조, 시행령 제41조 제4항, 시행규칙 제44조 제2항). 2,000만원 초과 여부는 <b>평가율을 곱하기 전</b> 금액으로 봅니다.</div></div>
       <div class="rule"><div class="rule-k">금융소득 1,000만원 규칙</div><div class="rule-v"><span class="badge">계산 반영</span>분리과세된 이자·배당 합계가 <b>1,000만원 이하면 건보료 소득에 넣지 않고</b>, 넘으면 1원부터 <b>전액</b> 넣습니다(시행규칙 제44조 제1항). 종합과세되면 배당소득금액(그로스업 포함)이 반영됩니다.</div></div>
       <div class="rule"><div class="rule-k">지역가입자</div><div class="rule-v"><span class="badge">계산 반영</span>소득 보험료 = 연 소득(이자·배당·사업·기타 100%, 근로·공적연금 50%) ÷ 12 × 7.19%. 소득월액이 28만원 이하이거나 계산한 건강보험료가 월 20,160원보다 적으면 하한 보험료(월 20,160원). 재산 보험료(부과점수당 211.5원)는 금융소득과 무관해 넣지 않았습니다.</div></div>
-      <div class="rule"><div class="rule-k">피부양자 자격</div><div class="rule-v"><span class="badge">계산 반영</span>① 소득 합계 <b>연 2,000만원 이하</b>(공적연금·근로·기타 100% 합산, 사적연금 제외, 금융소득은 1,000만원 넘으면 전액) ② 사업자등록이 있으면 사업소득 0원, 없으면 연 500만원 이하 ③ 재산세 과세표준 5.4억원 이하, 5.4억~9억원이면 소득 1,000만원 이하, 9억원 초과는 탈락. 탈락하면 지역가입자로 바뀝니다. 형제자매·부양 관계 요건은 넣지 않았습니다.</div></div>
+      <div class="rule"><div class="rule-k">피부양자 자격</div><div class="rule-v"><span class="badge">계산 반영</span>① 소득 합계 <b>연 2,000만원 이하</b>(공적연금·근로·기타 100% 합산, 사적연금 제외, 금융소득은 1,000만원 넘으면 전액) ② 사업자등록이 있거나 주택임대소득이 있으면 사업소득 0원, 둘 다 없으면 연 500만원 이하(미등록이라도 주택임대소득은 500만원 예외가 없음) ③ 재산세 과세표준 5.4억원 이하, 5.4억~9억원이면 소득 1,000만원 이하, 9억원 초과는 탈락. 탈락하면 지역가입자로 바뀝니다. 형제자매·부양 관계 요건은 넣지 않았습니다.</div></div>
       <div class="rule"><div class="rule-k">반영 시기</div><div class="rule-v">건보료는 국세청 소득 자료가 넘어오는 대로 반영됩니다. 2026년 소득은 보통 <b>2027년 11월분부터 1년 동안</b>의 보험료에 반영됩니다(시행령 제41조 제3항).</div></div>
       <div class="rule"><div class="rule-k">고배당기업 배당 분리과세</div><div class="rule-v"><span class="badge warn">계산 미반영</span>조세특례제한법 제104조의27 신설 — 배당성향 40% 이상(또는 25% 이상이면서 배당 10% 이상 증가) 등 요건을 갖춘 상장법인에서 <b>직접 받은 현금배당</b>은 2026년 1월 1일 이후 지급분부터 종합과세 대신 14%(2,000만원 이하)·20%(3억원 이하)·25%(50억원 이하)·30%로 분리과세할 수 있습니다(2028년까지 한시). ETF·펀드·리츠 분배금, 해외주식 배당은 대상이 아닙니다. 해당 배당이 있다면 실제 세금은 이 계산과 다를 수 있습니다.</div></div>
     </div>
@@ -1143,7 +1143,7 @@ function renderNh(res) {
     const nh = inp.nh;
     let c = '';
     c += it(n.cIncome, `<b>소득 합계 ${manText(n.Y)}</b> ${n.cIncome ? '≤' : '>'} 2,000만원 — 금융소득 ${manText(res.fin)}${res.t.F > 0 && res.fin === 0 ? '(1,000만원 이하라 0으로 봄)' : ''} + 공적연금 ${manText(nh.pension)} + 근로 ${manText(nh.wage)} + 기타 ${manText(nh.other)} + 사업 ${manText(nh.biz)}`);
-    c += it(n.cBiz, nh.bizReg ? `<b>사업자등록 있음</b> — 사업소득 ${manText(nh.biz)} ${n.cBiz ? '(0원이라 통과)' : '(1원이라도 있으면 탈락)'}` : `<b>사업자등록 없음</b> — 사업소득 ${manText(nh.biz)} ${n.cBiz ? '≤' : '>'} 500만원`);
+    c += it(n.cBiz, nh.bizReg ? `<b>사업자등록 또는 주택임대 있음</b> — 사업소득 ${manText(nh.biz)} ${n.cBiz ? '(0원이라 통과)' : '(1원이라도 있으면 탈락)'}` : `<b>사업자등록·주택임대 없음</b> — 사업소득 ${manText(nh.biz)} ${n.cBiz ? '≤' : '>'} 500만원`);
     const pp = nh.prop;
     c += it(n.cProp, pp <= RULE.depProp1 ? `<b>재산세 과세표준 ${pp > 0 ? (Math.round(pp / 1e7) / 10) + '억원' : '0원(미입력)'}</b> ≤ 5.4억원` :
       pp <= RULE.depProp2 ? `<b>재산세 과세표준 ${Math.round(pp / 1e7) / 10}억원</b> (5.4억~9억) — 소득 합계 ${manText(n.Y)} ${n.Y <= RULE.depPropIncome ? '≤ 1,000만원이라 통과' : '> 1,000만원이라 탈락'}` :
