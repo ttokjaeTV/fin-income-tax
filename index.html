@@ -694,7 +694,7 @@
     <ul>
       <li><b>고배당기업 배당 분리과세</b>(조특법 제104조의27, 2026~2028년 지급분)와 비영업대금 이익(25%)처럼 원천징수율이 다른 금융소득.</li>
       <li><b>해외주식 직접 투자 배당</b>: 미국 등에서 15% 원천징수되고 국내에서는 외국납부세액공제를 받습니다. 이 계산기는 국내에서 14%가 원천징수된 것처럼 단순화했습니다.</li>
-      <li><b>지역가입자 재산 보험료·세대원 소득</b>, 피부양자 탈락 뒤 생기는 재산 보험료, 형제자매·부양 관계 요건.</li>
+      <li><b>지역가입자 재산 보험료·세대원 소득</b>(피부양자 탈락 뒤 새로 생기는 재산 보험료는 넣었습니다), 형제자매·부양 관계 요건.</li>
       <li>ISA·연금저축·IRP 계좌 안의 소득, 해외주식 양도차익, 국내 주식 매매차익 (모두 금융소득종합과세 대상이 아님).</li>
       <li>종합소득세 신고 때 생기는 다른 소득공제·세액공제의 변화, 중간예납, 가산세.</li>
       <li>2027년 이후 세법·보험료율 변경 (그로스업 11% 포함).</li>
@@ -809,7 +809,17 @@ const RULE = {
   nhFinMin: 10e6,      // 이자·배당이 이 금액 이하면 건보료 소득에서 제외
   extraDed: 20e6,      // 직장가입자 보수 외 소득 공제
   depIncome: 20e6, depBiz: 5e6, depProp1: 5.4e8, depProp2: 9e8, depPropIncome: 10e6,
+  perPoint: 211.5,     // 2026 재산 점수당 금액 (지역가입자)
+  propDed: 1e8,        // 재산세 과세표준에서 빼 주는 기본공제
 };
+// 지역가입자 재산 점수 (재산세 과세표준 − 1억원, 만원 단위 상한 → 점수) — 국민건강보험법 시행령 별표4, etf-vs-direct·pension-tax-sim과 같은 표
+const NH_PROP = [[450,22],[900,44],[1350,66],[1800,97],[2250,122],[2700,146],[3150,171],[3600,195],[4050,219],[4500,244],
+  [5020,268],[5590,294],[6220,320],[6930,344],[7710,365],[8590,386],[9570,412],[10700,439],[11900,465],[13300,490],
+  [14800,516],[16400,535],[18300,559],[20400,586],[22700,611],[25300,637],[28100,659],[31300,681],[34900,706],[38800,731],
+  [43200,757],[48100,785],[53600,812],[59700,841],[66500,881],[74000,921],[82400,961],[91800,1001],[103000,1041],[114000,1091],
+  [127000,1141],[142000,1191],[158000,1241],[176000,1291],[196000,1341],[218000,1391],[242000,1451],[270000,1511],[300000,1571],[330000,1641],
+  [363000,1711],[399300,1781],[439230,1851],[483153,1921],[531468,1991],[584615,2061],[643077,2131],[707385,2201],[778124,2271],[Infinity,2341]];
+function propPoints(tb) { const man = (tb - RULE.propDed) / 1e4; if (man <= 0) return 0; for (const [l, p] of NH_PROP) if (man <= l) return p; return 2341; }
 // 종합소득세 기본세율 (과세표준 → 산출세액)
 function basicTax(base) {
   if (!(base > 0)) return 0;
@@ -890,8 +900,15 @@ function nhisCalc(type, fin, o) {
   const eligible = cIncome && cBiz && cProp;
   const ev = fin + biz + oth + 0.5 * (wage + pen);
   const m = eligible ? 0 : ev / 12;
-  const p = eligible ? { health: 0, ltc: 0, monthly: 0, annual: 0 } : nhPremium(m, true);
-  return { type, Y, prop, cIncome, cBiz, cProp, eligible, ev, m, ...p };
+  let p = eligible ? { health: 0, ltc: 0, monthly: 0, annual: 0 } : nhPremium(m, true);
+  // 피부양자에서 빠지면 지역가입자로서 재산 보험료도 새로 붙는다 (소득 보험료 + 재산 점수 × 점수당 금액) — etf-vs-direct와 같은 계산
+  const propPts = eligible ? 0 : propPoints(prop);
+  const propHealth = floor10(propPts * RULE.perPoint);
+  if (propHealth > 0) {
+    const health = p.health + propHealth, ltc = floor10(health * RULE.ltc / RULE.hi);
+    p = { ...p, health, ltc, monthly: health + ltc, annual: (health + ltc) * 12 };
+  }
+  return { type, Y, prop, cIncome, cBiz, cProp, eligible, ev, m, propPts, propHealth, ...p };
 }
 // 금융소득 1건(1년)의 영향: 세금 + 건보료 증가분
 // x = { interest, divGU, divOther, otherBase, type, nh: {biz, wage, pension, other, bizReg, prop} }
@@ -1028,7 +1045,7 @@ function renderNhWarn(inp, res) {
 function nhSentence(res) {
   const n = res.nhW, o = res.nhO;
   if (TYPE === 'dep') {
-    if (o.eligible && !n.eligible) return `그리고 금융소득 때문에 <strong>피부양자 자격을 잃어</strong> 지역가입자 소득 보험료 <strong>월 ${manText(n.monthly)}</strong>이 새로 생깁니다(재산 보험료 별도).`;
+    if (o.eligible && !n.eligible) return `그리고 금융소득 때문에 <strong>피부양자 자격을 잃어</strong> 지역가입자 보험료 <strong>월 ${manText(n.monthly)}</strong>이 새로 생깁니다${n.propHealth > 0 ? `(재산 보험료 월 ${manText(n.propHealth)} 포함)` : ''}.`;
     if (!o.eligible) return `금융소득이 없어도 이미 피부양자 요건을 넘는 상태라, 지역가입자 소득 보험료가 월 ${manText(res.dNh / 12)} 늘어나는 것으로 계산했습니다.`;
     return `피부양자 자격은 <strong>유지</strong>되어 건보료는 0원입니다.`;
   }
@@ -1145,7 +1162,10 @@ function renderNh(res) {
     h += row('지역가입자 반영 소득', '금융·사업·기타 100% + 근로·연금 50%', won(n.ev));
     h += row('소득월액', `${won(n.ev)} ÷ 12${n.atFloor ? ' → 하한 보험료 적용' : ''}`, won(n.m));
   }
-  h += row('월 건강보험료', n.atCap ? '상한 4,591,740원' : TYPE === 'work' ? '소득월액 × 7.19% (10원 미만 절사)' : (n.atFloor ? '하한 20,160원' : '소득월액 × 7.19% (10원 미만 절사)'), won(n.health));
+  if (TYPE === 'dep' && n.propHealth > 0) {
+    h += row('월 소득 보험료', n.atFloor ? '하한 20,160원' : '소득월액 × 7.19% (10원 미만 절사)', won(n.health - n.propHealth));
+    h += row('월 재산 보험료', `(재산세 과세표준 − 1억원) → ${n.propPts}점 × 211.5원`, won(n.propHealth));
+  } else h += row('월 건강보험료', n.atCap ? '상한 4,591,740원' : TYPE === 'work' ? '소득월액 × 7.19% (10원 미만 절사)' : (n.atFloor ? '하한 20,160원' : '소득월액 × 7.19% (10원 미만 절사)'), won(n.health));
   h += row('월 장기요양보험료', '건강보험료 × 0.9448 ÷ 7.19 (10원 미만 절사)', won(n.ltc));
   h += row('월 합계 (지금 금융소득 기준)', '', won(n.monthly));
   h += row('금융소득이 0원이라면', TYPE === 'dep' ? (o.eligible ? '피부양자 자격 유지 → 0원' : '지역가입자 소득 보험료') : (TYPE === 'regional' && o.atFloor ? '금융소득 없으면 하한 보험료(20,160원 + 장기요양)' : '같은 계산을 금융소득 없이'), won(o.monthly));
@@ -1155,7 +1175,7 @@ function renderNh(res) {
     ? `2,000만원 공제는 <b>월급 외 소득 전체</b>에 한 번만 적용됩니다. 금융소득이 1,000만원 이하면 아예 합산되지 않고, 넘으면 전액이 합산돼 다른 월급 외 소득과 함께 2,000만원 넘는지 봅니다.`
     : TYPE === 'regional'
       ? `지역가입자는 별도 공제가 없어 금융소득이 1,000만원을 넘는 순간 전액에 보험료가 붙습니다. 재산 보험료와 세대원 소득은 넣지 않았습니다.`
-      : `탈락하면 지역가입자로 바뀌어 위 소득 보험료에 <b>재산 보험료</b>(재산세 과세표준 기준 부과점수 × 211.5원)가 더해집니다. 재산 보험료는 이 계산에 넣지 않았습니다.`;
+      : `탈락하면 지역가입자로 바뀌어 소득 보험료에 <b>재산 보험료</b>(재산세 과세표준 − 1억원 → 부과점수 × 211.5원)가 더해지고, 이 계산에도 넣었습니다. 전월세 보증금·주택담보대출 공제는 넣지 않았습니다.`;
 }
 
 // ============== 차트 ==============
