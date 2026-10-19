@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+<script src="https://ttokjaetv.github.io/rules/v2026.1/rules.js"></script>
 <style>
   :root {
     --bg: #F5EFE6;
@@ -710,6 +711,12 @@
 </div>
 
 <script>
+if (!window.TTOKJAE_RULES) {
+  var TJR_MSG = '기준값 파일(rules.js)을 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 새로고침해 주세요.';
+  var tjrShow = function () { document.body.insertAdjacentHTML('afterbegin', '<div role="alert" style="background:#fdecea;color:#b3261e;padding:12px 16px;text-align:center;font-weight:600">' + TJR_MSG + '</div>'); };
+  document.body ? tjrShow() : document.addEventListener('DOMContentLoaded', tjrShow);
+  throw new Error(TJR_MSG);
+}
 // ============== 표 내려받기 (CSV · 엑셀 .xlsx) — 외부 라이브러리 없이 동작 ==============
 // TJX.csv('파일이름', rows) · TJX.xlsx('파일이름', [{ name: '시트', rows, widths }])
 // rows = [[머리글...], [값...], ...]  숫자는 숫자 그대로 넣으면 엑셀에서 계산 가능한 숫자 칸이 됩니다
@@ -791,35 +798,33 @@ const TJX = (() => {
 })();
 
 // ============== 세금 엔진 (fin-income-tax · etf-vs-direct 공통 — 두 계산기가 같은 코드를 씀) ==============
-// 2026년 귀속 기준, 2026-10-12 확인. 금액 단위는 원.
+// 제도 숫자는 공용 기준 파일 rules.js(TTOKJAE_RULES)에서 읽는다. 금액 단위는 원, 비율은 0~1.
+const TR = TTOKJAE_RULES;
 const RULE = {
-  year: 2026,
-  brackets: [[14e6, 0.06, 0], [50e6, 0.15, 1.26e6], [88e6, 0.24, 5.76e6], [150e6, 0.35, 15.44e6],
-             [300e6, 0.38, 19.94e6], [500e6, 0.40, 25.94e6], [1e9, 0.42, 35.94e6], [Infinity, 0.45, 65.94e6]],
-  finLimit: 20e6,      // 금융소득종합과세 기준 (초과 시 종합과세)
-  wh: 0.14,            // 원천징수 소득세율 (지방세 별도)
-  local: 0.10,         // 지방소득세 = 소득세의 10%
-  grossUp: 0.10,       // 배당가산율 (2026년 지급분까지 10%, 2027년부터 11%)
-  basicDed: 1.5e6,     // 다른 소득이 없을 때 빼 주는 본인 기본공제
-  hi: 0.0719,          // 2026 건강보험료율
-  ltc: 0.009448,       // 2026 장기요양보험료율 (소득 대비)
-  hiCap: 4591740,      // 소득 보험료 월 상한 (건강보험료 기준)
-  hiFloor: 20160,      // 지역가입자 월 하한 (건강보험료 기준)
-  floorIncome: 280000, // 소득월액이 이 금액 이하면 하한 적용
-  nhFinMin: 10e6,      // 이자·배당이 이 금액 이하면 건보료 소득에서 제외
-  extraDed: 20e6,      // 직장가입자 보수 외 소득 공제
-  depIncome: 20e6, depBiz: 5e6, depProp1: 5.4e8, depProp2: 9e8, depPropIncome: 10e6,
-  perPoint: 211.5,     // 2026 재산 점수당 금액 (지역가입자)
-  propDed: 1e8,        // 재산세 과세표준에서 빼 주는 기본공제
+  year: TR.meta.year,                              // 기준 연도(귀속)
+  brackets: TR.INCOME_TAX.brackets,                // 기본세율 [과표 상한, 세율, 누진공제]
+  finLimit: TR.FIN_INCOME.threshold,               // 금융소득종합과세 기준 (초과 시 종합과세)
+  wh: TR.FIN_INCOME.withholding,                   // 원천징수 소득세율 (지방세 별도)
+  local: TR.INCOME_TAX.local,                      // 지방소득세 = 소득세의 10%
+  grossUp: TR.FIN_INCOME.grossUp,                  // 배당가산율
+  basicDed: TR.INCOME_TAX.basicDeduction,          // 다른 소득이 없을 때 빼 주는 본인 기본공제
+  hi: TR.NHIS.healthRate,                          // 건강보험료율
+  ltc: TR.NHIS.ltcRate,                            // 장기요양보험료율 (소득 대비)
+  hiCap: TR.NHIS.premiumCapMonthly,                // 소득 보험료 월 상한 (건강보험료 기준)
+  hiFloor: TR.NHIS.premiumFloorMonthly,            // 지역가입자 월 하한 (건강보험료 기준)
+  floorIncome: TR.NHIS.floorIncomeMonthly,         // 소득월액이 이 금액 이하면 하한 적용
+  nhFinMin: TR.NHIS.finIncomeThreshold,            // 이자·배당이 이 금액 이하면 건보료 소득에서 제외
+  extraDed: TR.NHIS.employeeExtraIncomeDeduction,  // 직장가입자 보수 외 소득 공제
+  depIncome: TR.NHIS.dependent.income, depBiz: TR.NHIS.dependent.biz, depProp1: TR.NHIS.dependent.propLow,
+  depProp2: TR.NHIS.dependent.propHigh, depPropIncome: TR.NHIS.dependent.propIncome,
+  perPoint: TR.NHIS.perPoint,                      // 재산 점수당 금액 (지역가입자)
+  propDed: TR.NHIS.propertyDeduction,              // 재산세 과세표준에서 빼 주는 기본공제
+  pubRate: TR.NHIS.publicPensionRatio,             // 근로·공적연금 건보 반영률
+  trunc: TR.NHIS.truncUnit,                        // 보험료 절사 단위(원)
 };
-// 지역가입자 재산 점수 (재산세 과세표준 − 1억원, 만원 단위 상한 → 점수) — 국민건강보험법 시행령 별표4, etf-vs-direct·pension-tax-sim과 같은 표
-const NH_PROP = [[450,22],[900,44],[1350,66],[1800,97],[2250,122],[2700,146],[3150,171],[3600,195],[4050,219],[4500,244],
-  [5020,268],[5590,294],[6220,320],[6930,344],[7710,365],[8590,386],[9570,412],[10700,439],[11900,465],[13300,490],
-  [14800,516],[16400,535],[18300,559],[20400,586],[22700,611],[25300,637],[28100,659],[31300,681],[34900,706],[38800,731],
-  [43200,757],[48100,785],[53600,812],[59700,841],[66500,881],[74000,921],[82400,961],[91800,1001],[103000,1041],[114000,1091],
-  [127000,1141],[142000,1191],[158000,1241],[176000,1291],[196000,1341],[218000,1391],[242000,1451],[270000,1511],[300000,1571],[330000,1641],
-  [363000,1711],[399300,1781],[439230,1851],[483153,1921],[531468,1991],[584615,2061],[643077,2131],[707385,2201],[778124,2271],[Infinity,2341]];
-function propPoints(tb) { const man = (tb - RULE.propDed) / 1e4; if (man <= 0) return 0; for (const [l, p] of NH_PROP) if (man <= l) return p; return 2341; }
+// 지역가입자 재산 점수 (재산세 과세표준 − 1억원, 만원 단위 상한 → 점수) — rules.js NHIS.propertyPointTable
+const NH_PROP = TR.NHIS.propertyPointTable;
+function propPoints(tb) { const man = (tb - RULE.propDed) / 1e4; if (man <= 0) return 0; for (const [l, p] of NH_PROP) if (man <= l) return p; return NH_PROP[NH_PROP.length - 1][1]; }
 // 종합소득세 기본세율 (과세표준 → 산출세액)
 function basicTax(base) {
   if (!(base > 0)) return 0;
@@ -829,7 +834,7 @@ function basicTax(base) {
 function marginalRate(base) {
   if (!(base > 0)) return RULE.brackets[0][1];
   for (const [lim, r] of RULE.brackets) if (base <= lim) return r;
-  return 0.45;
+  return RULE.brackets[RULE.brackets.length - 1][1];
 }
 // 금융소득종합과세 — 비교과세·그로스업·배당세액공제
 // x = { interest, divGU(그로스업 대상 배당), divOther(그 밖의 배당), otherBase(다른 종합소득 과세표준) }
@@ -864,7 +869,7 @@ function finTax(x) {
 // 건보료에 잡히는 금융소득 (1,000만원 이하 제외, 넘으면 전액 · 종합과세면 그로스업 포함)
 function nhFinCounted(t) { return t.F <= RULE.nhFinMin ? 0 : (t.comp ? t.finAmt : t.F); }
 // 고지서처럼 10원 미만 버림
-const floor10 = v => Math.floor(v / 10 + 1e-9) * 10;
+const floor10 = v => Math.floor(v / RULE.trunc + 1e-9) * RULE.trunc;
 // 소득월액 → 월 건강보험료·장기요양보험료 (각각 10원 미만 절사, 장기요양은 절사된 건보료 기준)
 function nhPremium(m, regional) {
   let h = Math.max(0, m) * RULE.hi;
@@ -882,12 +887,12 @@ function nhisCalc(type, fin, o) {
   const biz = o.biz || 0, wage = o.wage || 0, pen = o.pension || 0, oth = o.other || 0;
   if (type === 'work') {
     const S = fin + biz + wage + pen;
-    const ev = fin + biz + 0.5 * (wage + pen);
+    const ev = fin + biz + RULE.pubRate * (wage + pen);
     const m = S > RULE.extraDed ? (S - RULE.extraDed) / 12 * (ev / S) : 0;
     return { type, S, ev, m, ...nhPremium(m, false) };
   }
   if (type === 'regional') {
-    const ev = fin + biz + oth + 0.5 * (wage + pen);
+    const ev = fin + biz + oth + RULE.pubRate * (wage + pen);
     const m = ev / 12;
     return { type, ev, m, ...nhPremium(m, true) };
   }
@@ -898,7 +903,7 @@ function nhisCalc(type, fin, o) {
   const cBiz = o.bizReg ? biz <= 0 : biz <= RULE.depBiz;
   const cProp = prop <= RULE.depProp1 ? true : (prop <= RULE.depProp2 ? Y <= RULE.depPropIncome : false);
   const eligible = cIncome && cBiz && cProp;
-  const ev = fin + biz + oth + 0.5 * (wage + pen);
+  const ev = fin + biz + oth + RULE.pubRate * (wage + pen);
   const m = eligible ? 0 : ev / 12;
   let p = eligible ? { health: 0, ltc: 0, monthly: 0, annual: 0 } : nhPremium(m, true);
   // 피부양자에서 빠지면 지역가입자로서 재산 보험료도 새로 붙는다 (소득 보험료 + 재산 점수 × 점수당 금액) — etf-vs-direct와 같은 계산
@@ -959,6 +964,12 @@ function manText(n) {
   return (neg ? '-' : '') + s;
 }
 const pct = (v, d = 1) => (Math.round(v * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d) + '%';
+// 제도 숫자(rules 값)를 설명 문구로: RX.man(20e6) → '2,000만', RX.eok(5.4e8) → '5.4억', RX.pct(0.154) → '15.4%', RX.num(20160) → '20,160'
+const RX = (() => {
+  const num = n => { const [i, f] = String(n).split('.'); return i.replace(/\B(?=(\d{3})+$)/g, ',') + (f ? '.' + f : ''); };
+  const pn = v => num(+(v * 100).toFixed(6));
+  return { num, pn, pct: v => pn(v) + '%', man: v => num(v / 1e4) + '만', eok: v => num(v / 1e8) + '억' };
+})();
 const TYPE_NAME = { work: '직장가입자', regional: '지역가입자', dep: '피부양자' };
 
 // ============== 입력 ==============
@@ -999,8 +1010,8 @@ function render() {
   document.getElementById('fin-sum').innerHTML = F <= 0
     ? '금융소득을 넣어 주세요.'
     : `금융소득 합계 <b>${manText(F)}</b> · ${t.comp
-        ? `2,000만원을 <b>${manText(F - RULE.finLimit)}</b> 넘어 <b>종합과세 대상</b>입니다.`
-        : `2,000만원 이하라 <b>분리과세(15.4% 원천징수로 끝)</b>입니다.`}`;
+        ? `${RX.man(RULE.finLimit)}원을 <b>${manText(F - RULE.finLimit)}</b> 넘어 <b>종합과세 대상</b>입니다.`
+        : `${RX.man(RULE.finLimit)}원 이하라 <b>분리과세(${RX.pct(TR.FIN_INCOME.withholdingWithLocal)} 원천징수로 끝)</b>입니다.`}`;
 
   // verdict
   const vl = document.getElementById('verdict-label'), vm = document.getElementById('verdict-main'), vs = document.getElementById('verdict-sub');
@@ -1011,23 +1022,23 @@ function render() {
   } else {
     vm.innerHTML = `금융소득 때문에 늘어나는 돈 <span class="hl">연 ${manText(res.total)}</span><br><span style="font-size:0.62em;font-weight:800;color:#D9D2C5;">= 추가 세금 ${manText(t.extraTotal)} + 건보료 연 ${manText(res.dNh)}</span>`;
     let sub = '';
-    if (!t.comp) sub = `금융소득 ${manText(F)}은 2,000만원 이하라 받을 때 떼인 15.4%(${manText(t.prepaidTotal)})로 세금이 끝납니다. `;
-    else if (t.extra <= 0.5) sub = `2,000만원을 넘어 종합과세 대상이지만, 비교과세 결과 <strong>추가로 낼 세금은 0원</strong>입니다. 다른 소득의 세율 구간이 낮아 원천징수 14%와 차이가 없기 때문입니다. `;
-    else sub = `2,000만원을 넘는 금융소득이 다른 소득 위에 얹혀 <strong>${pct(marginalRate(t.base) * 100, 0)} 세율 구간</strong>까지 올라가면서, 이미 떼인 15.4% 말고 <strong>${manText(t.extraTotal)}</strong>을 2027년 5월에 더 냅니다. `;
+    if (!t.comp) sub = `금융소득 ${manText(F)}은 ${RX.man(RULE.finLimit)}원 이하라 받을 때 떼인 ${RX.pct(TR.FIN_INCOME.withholdingWithLocal)}(${manText(t.prepaidTotal)})로 세금이 끝납니다. `;
+    else if (t.extra <= 0.5) sub = `${RX.man(RULE.finLimit)}원을 넘어 종합과세 대상이지만, 비교과세 결과 <strong>추가로 낼 세금은 0원</strong>입니다. 다른 소득의 세율 구간이 낮아 원천징수 ${RX.pct(RULE.wh)}와 차이가 없기 때문입니다. `;
+    else sub = `${RX.man(RULE.finLimit)}원을 넘는 금융소득이 다른 소득 위에 얹혀 <strong>${pct(marginalRate(t.base) * 100, 0)} 세율 구간</strong>까지 올라가면서, 이미 떼인 ${RX.pct(TR.FIN_INCOME.withholdingWithLocal)} 말고 <strong>${manText(t.extraTotal)}</strong>을 ${RULE.year + 1}년 5월에 더 냅니다. `;
     sub += nhSentence(res);
     vs.innerHTML = sub;
   }
 
   // 카드
   document.getElementById('s1-value').textContent = manText(t.extraTotal);
-  document.getElementById('s1-sub').innerHTML = `국세 ${won(t.extra)} · 지방세 ${won(t.extraLocal)}<br>이미 떼인 15.4% ${manText(t.prepaidTotal)}은 별도`;
+  document.getElementById('s1-sub').innerHTML = `국세 ${won(t.extra)} · 지방세 ${won(t.extraLocal)}<br>이미 떼인 ${RX.pct(TR.FIN_INCOME.withholdingWithLocal)} ${manText(t.prepaidTotal)}은 별도`;
   document.getElementById('s2-value').textContent = '월 ' + manText(res.dNh / 12);
   document.getElementById('s2-sub').innerHTML = `연 ${won(res.dNh)} · 장기요양 포함<br>${TYPE_NAME[TYPE]} 기준`;
   document.getElementById('s3-value').textContent = manText(res.total);
   document.getElementById('s3-sub').textContent = `추가 세금 + 건보료 1년치`;
   const burden = F > 0 ? (t.prepaidTotal + res.total) / F * 100 : 0;
   document.getElementById('s4-value').textContent = F > 0 ? pct(burden) : '-';
-  document.getElementById('s4-sub').innerHTML = F > 0 ? `원천징수 15.4% 포함<br>추가분만 보면 ${pct(res.total / F * 100)}` : '';
+  document.getElementById('s4-sub').innerHTML = F > 0 ? `원천징수 ${RX.pct(TR.FIN_INCOME.withholdingWithLocal)} 포함<br>추가분만 보면 ${pct(res.total / F * 100)}` : '';
 
   renderNhWarn(inp, res);
   renderRoom(res);
@@ -1061,10 +1072,10 @@ function nhSentence(res) {
     return `피부양자 자격은 <strong>유지</strong>되어 건보료는 0원입니다.`;
   }
   if (res.dNh <= 0.5) {
-    if (TYPE === 'work') return `건보료는 늘지 않습니다. 월급 외 소득이 ${res.fin > 0 ? `${manText(n.S)}로 2,000만원 이하` : '건보료에 잡히지 않는 수준(금융소득 1,000만원 이하)'}이기 때문입니다.`;
-    return `금융소득이 1,000만원 이하라 건보료 소득에 잡히지 않습니다.`;
+    if (TYPE === 'work') return `건보료는 늘지 않습니다. 월급 외 소득이 ${res.fin > 0 ? `${manText(n.S)}로 ${RX.man(RULE.extraDed)}원 이하` : `건보료에 잡히지 않는 수준(금융소득 ${RX.man(RULE.nhFinMin)}원 이하)`}이기 때문입니다.`;
+    return `금융소득이 ${RX.man(RULE.nhFinMin)}원 이하라 건보료 소득에 잡히지 않습니다.`;
   }
-  if (TYPE === 'work') return `월급 외 소득이 2,000만원을 넘어 <strong>소득월액 보험료 월 ${manText(res.dNh / 12)}</strong>이 월급 건보료와 별도로 붙습니다.`;
+  if (TYPE === 'work') return `월급 외 소득이 ${RX.man(RULE.extraDed)}원을 넘어 <strong>소득월액 보험료 월 ${manText(res.dNh / 12)}</strong>이 월급 건보료와 별도로 붙습니다.`;
   return `지역가입자 소득 보험료가 <strong>월 ${manText(res.dNh / 12)}</strong> 늘어납니다(재산 보험료는 그대로).`;
 }
 
@@ -1073,19 +1084,19 @@ function renderRoom(res) {
   const r1v = document.getElementById('room1-v'), r1d = document.getElementById('room1-d');
   if (F <= RULE.finLimit) {
     r1v.textContent = manText(RULE.finLimit - F); r1v.classList.remove('over');
-    r1d.textContent = '이만큼 더 받아도 15.4% 원천징수로 끝납니다. 이자·배당 합계 기준이며 부부는 따로 셉니다.';
+    r1d.textContent = `이만큼 더 받아도 ${RX.pct(TR.FIN_INCOME.withholdingWithLocal)} 원천징수로 끝납니다. 이자·배당 합계 기준이며 부부는 따로 셉니다.`;
   } else {
     r1v.textContent = manText(F - RULE.finLimit) + ' 초과'; r1v.classList.add('over');
-    r1d.textContent = '2,000만원을 넘는 몫이 다른 소득과 합쳐져 기본세율로 다시 계산됩니다. ISA·연금계좌로 옮기면 이 금액이 줄어듭니다.';
+    r1d.textContent = `${RX.man(RULE.finLimit)}원을 넘는 몫이 다른 소득과 합쳐져 기본세율로 다시 계산됩니다. ISA·연금계좌로 옮기면 이 금액이 줄어듭니다.`;
   }
   const r2v = document.getElementById('room2-v'), r2d = document.getElementById('room2-d');
   if (F <= RULE.nhFinMin) {
     r2v.textContent = manText(RULE.nhFinMin - F); r2v.classList.remove('over');
-    r2d.textContent = '1,000만원을 1원이라도 넘으면 금융소득 전액이 건보료 소득에 잡힙니다' + (TYPE === 'dep' ? ' — 피부양자에겐 자격이 걸린 경계입니다.' : '.');
+    r2d.textContent = `${RX.man(RULE.nhFinMin)}원을 1원이라도 넘으면 금융소득 전액이 건보료 소득에 잡힙니다` + (TYPE === 'dep' ? ' — 피부양자에겐 자격이 걸린 경계입니다.' : '.');
   } else {
     r2v.textContent = manText(F - RULE.nhFinMin) + ' 초과'; r2v.classList.add('over');
     let d = `금융소득 ${manText(res.fin)}이 전액 건보료 소득에 잡힙니다.`;
-    if (TYPE === 'work') d += res.nhW.S <= RULE.extraDed ? ` 다만 월급 외 소득 합계가 2,000만원까지는 공제돼 아직 ${manText(RULE.extraDed - res.nhW.S)} 여유가 있습니다.` : ` 월급 외 소득 합계 ${manText(res.nhW.S)} 중 2,000만원을 넘는 부분에 보험료가 붙습니다.`;
+    if (TYPE === 'work') d += res.nhW.S <= RULE.extraDed ? ` 다만 월급 외 소득 합계가 ${RX.man(RULE.extraDed)}원까지는 공제돼 아직 ${manText(RULE.extraDed - res.nhW.S)} 여유가 있습니다.` : ` 월급 외 소득 합계 ${manText(res.nhW.S)} 중 ${RX.man(RULE.extraDed)}원을 넘는 부분에 보험료가 붙습니다.`;
     r2d.textContent = d;
   }
 }
@@ -1098,27 +1109,27 @@ function renderTaxTable(t) {
   const sub = document.getElementById('tax-subtitle');
   let h = row('① 금융소득 합계', `이자 ${won(t.I)} + 국내주식 배당 ${won(t.DG)} + 그 밖의 배당 ${won(t.DO)}`, won(t.F));
   if (!t.comp) {
-    sub.textContent = '금융소득이 2,000만원 이하라 종합과세 대상이 아닙니다. 받을 때 떼인 세금으로 끝납니다.';
-    h += row('② 종합과세 여부', '2,000만원 이하 → 분리과세', '대상 아님');
-    h += row('③ 이미 낸 세금 (원천징수)', `${won(t.F)} × 14% + 지방세 1.4%`, won(t.prepaidTotal));
+    sub.textContent = `금융소득이 ${RX.man(RULE.finLimit)}원 이하라 종합과세 대상이 아닙니다. 받을 때 떼인 세금으로 끝납니다.`;
+    h += row('② 종합과세 여부', `${RX.man(RULE.finLimit)}원 이하 → 분리과세`, '대상 아님');
+    h += row('③ 이미 낸 세금 (원천징수)', `${won(t.F)} × ${RX.pct(RULE.wh)} + 지방세 ${RX.pct(RULE.wh * RULE.local)}`, won(t.prepaidTotal));
     h += row('추가로 낼 세금', '없음', '0원', 'sum');
     body.innerHTML = h;
     return;
   }
   sub.innerHTML = `비교과세로 A·B 중 큰 금액을 산출세액으로 정합니다. 이번 결과는 <b>${t.pick === 'A' ? 'A(종합과세 방식)' : 'B(분리과세 방식)'}</b>가 선택됐습니다.`;
-  h += row('② 종합과세 여부', '2,000만원 초과', `대상 (${manText(t.F - RULE.finLimit)} 초과)`);
-  h += row('③ 그로스업 (배당가산액)', t.DG > 0 ? `min(국내주식 배당 ${won(t.DG)}, 2,000만원 초과분 ${won(t.F - RULE.finLimit)}) × 10%` : '국내주식 직접 배당이 없어 0원', won(t.gu));
+  h += row('② 종합과세 여부', `${RX.man(RULE.finLimit)}원 초과`, `대상 (${manText(t.F - RULE.finLimit)} 초과)`);
+  h += row('③ 그로스업 (배당가산액)', t.DG > 0 ? `min(국내주식 배당 ${won(t.DG)}, ${RX.man(RULE.finLimit)}원 초과분 ${won(t.F - RULE.finLimit)}) × ${RX.pct(RULE.grossUp)}` : '국내주식 직접 배당이 없어 0원', won(t.gu));
   h += row('④ 금융소득금액', '① + ③', won(t.finAmt));
   h += row('⑤ 종합소득 과세표준', t.O > 0 ? `④ + 다른 종합소득 과세표준 ${won(t.O)}` : `④ − 본인 기본공제 ${won(t.ded)} (다른 소득 없음)`, won(t.base));
-  h += row('⑥ A · 종합과세 방식', `2,000만원 × 14% + 기본세율(⑤ − 2,000만원 = ${won(Math.max(0, t.base - RULE.finLimit))})`, won(t.A), t.pick === 'A' ? 'pick' : '');
-  h += row('⑦ B · 분리과세 방식', `${won(t.F)} × 14% + 기본세율(⑤ − ④ = ${won(Math.max(0, t.base - t.finAmt))})`, won(t.B), t.pick === 'B' ? 'pick' : '');
+  h += row('⑥ A · 종합과세 방식', `${RX.man(RULE.finLimit)}원 × ${RX.pct(RULE.wh)} + 기본세율(⑤ − ${RX.man(RULE.finLimit)}원 = ${won(Math.max(0, t.base - RULE.finLimit))})`, won(t.A), t.pick === 'A' ? 'pick' : '');
+  h += row('⑦ B · 분리과세 방식', `${won(t.F)} × ${RX.pct(RULE.wh)} + 기본세율(⑤ − ④ = ${won(Math.max(0, t.base - t.finAmt))})`, won(t.B), t.pick === 'B' ? 'pick' : '');
   h += row('⑧ 산출세액', 'max(⑥, ⑦)', won(t.calc));
   h += row('⑨ 배당세액공제', t.gu > 0 ? `min(③ ${won(t.gu)}, ⑧ − ⑦ = ${won(t.calc - t.B)})` : '그로스업이 없어 0원', won(t.dc));
   h += row('⑩ 결정세액 (국세)', '⑧ − ⑨', won(t.decided));
   h += row('⑪ 다른 소득만 있을 때 세금', t.O > 0 ? `기본세율(${won(t.O)})` : '다른 소득 없음', won(t.otherTax));
-  h += row('⑫ 이미 낸 세금 (원천징수 14%)', `${won(t.F)} × 14%`, won(t.prepaid));
+  h += row(`⑫ 이미 낸 세금 (원천징수 ${RX.pct(RULE.wh)})`, `${won(t.F)} × ${RX.pct(RULE.wh)}`, won(t.prepaid));
   h += row('⑬ 추가 납부 국세', '⑩ − ⑪ − ⑫', won(t.extra));
-  h += row('⑭ 추가 지방소득세', '⑬ × 10%', won(t.extraLocal));
+  h += row('⑭ 추가 지방소득세', `⑬ × ${RX.pct(RULE.local)}`, won(t.extraLocal));
   h += row('금융소득 때문에 더 내는 세금', '⑬ + ⑭', won(t.extraTotal), 'sum');
   body.innerHTML = h;
 }
@@ -1128,23 +1139,23 @@ function renderNh(res) {
   const title = document.getElementById('nh-title'), subt = document.getElementById('nh-subtitle');
   const body = document.getElementById('nh-body'), note = document.getElementById('nh-note');
   const checks = document.getElementById('dep-checks');
-  const finLine = row('건보료에 잡히는 금융소득', res.t.F <= RULE.nhFinMin ? `${won(res.t.F)} — 1,000만원 이하라 제외` : (res.t.comp ? (res.t.gu > 0 ? `1,000만원 초과 → 전액. 실제 받은 ${won(res.t.F)} + 배당가산액(그로스업) ${won(res.t.gu)}<br><span style="font-weight:600;">종합과세되면 건보료도 세금 계산과 같은 배당소득금액(그로스업 포함)으로 매깁니다(시행규칙 제44조 제1항).</span>` : `1,000만원 초과 → 전액 ${won(res.t.F)} (국내주식 직접 배당이 없어 배당가산액 0원)`) : `1,000만원 초과 → 전액 ${won(res.t.F)}`), won(res.fin));
+  const finLine = row('건보료에 잡히는 금융소득', res.t.F <= RULE.nhFinMin ? `${won(res.t.F)} — ${RX.man(RULE.nhFinMin)}원 이하라 제외` : (res.t.comp ? (res.t.gu > 0 ? `${RX.man(RULE.nhFinMin)}원 초과 → 전액. 실제 받은 ${won(res.t.F)} + 배당가산액(그로스업) ${won(res.t.gu)}<br><span style="font-weight:600;">종합과세되면 건보료도 세금 계산과 같은 배당소득금액(그로스업 포함)으로 매깁니다(시행규칙 제44조 제1항).</span>` : `${RX.man(RULE.nhFinMin)}원 초과 → 전액 ${won(res.t.F)} (국내주식 직접 배당이 없어 배당가산액 0원)`) : `${RX.man(RULE.nhFinMin)}원 초과 → 전액 ${won(res.t.F)}`), won(res.fin));
   let h = finLine;
   checks.classList.toggle('is-hidden', TYPE !== 'dep');
   if (TYPE === 'work') {
     title.textContent = '직장가입자 — 월급 외 소득 보험료(소득월액 보험료)';
-    subt.textContent = '월급에서 빠지는 건보료와 별도로, 월급 외 소득이 연 2,000만원을 넘으면 넘는 부분에 보험료가 붙습니다(본인이 전액 부담).';
+    subt.textContent = `월급에서 빠지는 건보료와 별도로, 월급 외 소득이 연 ${RX.man(RULE.extraDed)}원을 넘으면 넘는 부분에 보험료가 붙습니다(본인이 전액 부담).`;
     h += row('사업·임대·기타소득', '100% 반영', won(inp.nh.biz));
-    h += row('다른 회사 근로소득', '50% 반영', won(inp.nh.wage));
-    h += row('공적연금', '50% 반영', won(inp.nh.pension));
-    h += row('월급 외 소득 합계 (평가 전)', '2,000만원 초과 여부는 이 금액으로 판단', won(n.S));
-    h += row('평가율 적용 소득', '금융·사업 100% + 근로·연금 50%', won(n.ev));
-    h += row('소득월액', n.S > RULE.extraDed ? `(${won(n.S)} − 2,000만원) ÷ 12 × ${pct(n.ev / n.S * 100, 1)}` : '2,000만원 이하 → 0원', won(n.m));
+    h += row('다른 회사 근로소득', `${RX.pct(RULE.pubRate)} 반영`, won(inp.nh.wage));
+    h += row('공적연금', `${RX.pct(RULE.pubRate)} 반영`, won(inp.nh.pension));
+    h += row('월급 외 소득 합계 (평가 전)', `${RX.man(RULE.extraDed)}원 초과 여부는 이 금액으로 판단`, won(n.S));
+    h += row('평가율 적용 소득', `금융·사업 100% + 근로·연금 ${RX.pct(RULE.pubRate)}`, won(n.ev));
+    h += row('소득월액', n.S > RULE.extraDed ? `(${won(n.S)} − ${RX.man(RULE.extraDed)}원) ÷ 12 × ${pct(n.ev / n.S * 100, 1)}` : `${RX.man(RULE.extraDed)}원 이하 → 0원`, won(n.m));
   } else if (TYPE === 'regional') {
     title.textContent = '지역가입자 — 소득 보험료';
     subt.textContent = '지역가입자는 소득 보험료 + 재산 보험료를 냅니다. 금융소득이 바꾸는 건 소득 보험료뿐이라 그 부분만 계산했습니다.';
     h += row('사업·임대·기타소득', '100% 반영', won(inp.nh.biz));
-    h += row('근로소득 · 공적연금', `50% 반영 (${won(inp.nh.wage)} + ${won(inp.nh.pension)})`, won(0.5 * (inp.nh.wage + inp.nh.pension)));
+    h += row('근로소득 · 공적연금', `${RX.pct(RULE.pubRate)} 반영 (${won(inp.nh.wage)} + ${won(inp.nh.pension)})`, won(RULE.pubRate * (inp.nh.wage + inp.nh.pension)));
     if (inp.nhGap > 0) h += row('기타소득으로 본 금액', `100% 반영 · 다른 과세표준 ${won(inp.otherBase)} − 위 소득칸 합계`, won(inp.nhGap));
     h += row('반영 소득 합계', '', won(n.ev));
     h += row('소득월액', `${won(n.ev)} ÷ 12${n.atFloor ? ' → 하한 보험료 적용' : ''}`, won(n.m));
@@ -1154,40 +1165,40 @@ function renderNh(res) {
     const it = (ok, txt) => `<li class="${ok ? '' : 'ng'}"><span class="mk">${ok ? '✓' : '✕'}</span><span>${txt}</span></li>`;
     const nh = inp.nh;
     let c = '';
-    c += it(n.cIncome, `<b>소득 합계 ${manText(n.Y)}</b> ${n.cIncome ? '≤' : '>'} 2,000만원 — 금융소득 ${manText(res.fin)}${res.t.F > 0 && res.fin === 0 ? '(1,000만원 이하라 0으로 봄)' : ''} + 공적연금 ${manText(nh.pension)} + 근로 ${manText(nh.wage)} + 기타 ${manText(nh.other)}${inp.nhGap > 0 ? `(과세표준과의 차이 ${manText(inp.nhGap)} 포함)` : ''} + 사업 ${manText(nh.biz)}`);
-    c += it(n.cBiz, nh.bizReg ? `<b>사업자등록 또는 주택임대 있음</b> — 사업소득 ${manText(nh.biz)} ${n.cBiz ? '(0원이라 통과)' : '(1원이라도 있으면 탈락)'}` : `<b>사업자등록·주택임대 없음</b> — 사업소득 ${manText(nh.biz)} ${n.cBiz ? '≤' : '>'} 500만원`);
+    c += it(n.cIncome, `<b>소득 합계 ${manText(n.Y)}</b> ${n.cIncome ? '≤' : '>'} ${RX.man(RULE.depIncome)}원 — 금융소득 ${manText(res.fin)}${res.t.F > 0 && res.fin === 0 ? `(${RX.man(RULE.nhFinMin)}원 이하라 0으로 봄)` : ''} + 공적연금 ${manText(nh.pension)} + 근로 ${manText(nh.wage)} + 기타 ${manText(nh.other)}${inp.nhGap > 0 ? `(과세표준과의 차이 ${manText(inp.nhGap)} 포함)` : ''} + 사업 ${manText(nh.biz)}`);
+    c += it(n.cBiz, nh.bizReg ? `<b>사업자등록 또는 주택임대 있음</b> — 사업소득 ${manText(nh.biz)} ${n.cBiz ? '(0원이라 통과)' : '(1원이라도 있으면 탈락)'}` : `<b>사업자등록·주택임대 없음</b> — 사업소득 ${manText(nh.biz)} ${n.cBiz ? '≤' : '>'} ${RX.man(RULE.depBiz)}원`);
     const pp = nh.prop;
-    c += it(n.cProp, pp <= RULE.depProp1 ? `<b>재산세 과세표준 ${pp > 0 ? (Math.round(pp / 1e7) / 10) + '억원' : '0원(미입력)'}</b> ≤ 5.4억원` :
-      pp <= RULE.depProp2 ? `<b>재산세 과세표준 ${Math.round(pp / 1e7) / 10}억원</b> (5.4억~9억) — 소득 합계 ${manText(n.Y)} ${n.Y <= RULE.depPropIncome ? '≤ 1,000만원이라 통과' : '> 1,000만원이라 탈락'}` :
-      `<b>재산세 과세표준 ${Math.round(pp / 1e7) / 10}억원</b> > 9억원 — 소득과 관계없이 탈락`);
-    if (o.eligible && !n.eligible) c += `<li class="ng"><span class="mk">!</span><span><b>금융소득이 없다면 자격 유지</b> — 이번 탈락은 금융소득 때문입니다. 금융소득을 ${res.t.F > RULE.nhFinMin ? '1,000만원 이하로 낮추거나 ' : ''}ISA·연금계좌로 옮기는 방법을 검토해 볼 수 있습니다.</span></li>`;
+    c += it(n.cProp, pp <= RULE.depProp1 ? `<b>재산세 과세표준 ${pp > 0 ? (Math.round(pp / 1e7) / 10) + '억원' : '0원(미입력)'}</b> ≤ ${RX.eok(RULE.depProp1)}원` :
+      pp <= RULE.depProp2 ? `<b>재산세 과세표준 ${Math.round(pp / 1e7) / 10}억원</b> (${RX.eok(RULE.depProp1)}~${RX.eok(RULE.depProp2)}) — 소득 합계 ${manText(n.Y)} ${n.Y <= RULE.depPropIncome ? `≤ ${RX.man(RULE.depPropIncome)}원이라 통과` : `> ${RX.man(RULE.depPropIncome)}원이라 탈락`}` :
+      `<b>재산세 과세표준 ${Math.round(pp / 1e7) / 10}억원</b> > ${RX.eok(RULE.depProp2)}원 — 소득과 관계없이 탈락`);
+    if (o.eligible && !n.eligible) c += `<li class="ng"><span class="mk">!</span><span><b>금융소득이 없다면 자격 유지</b> — 이번 탈락은 금융소득 때문입니다. 금융소득을 ${res.t.F > RULE.nhFinMin ? `${RX.man(RULE.nhFinMin)}원 이하로 낮추거나 ` : ''}ISA·연금계좌로 옮기는 방법을 검토해 볼 수 있습니다.</span></li>`;
     checks.innerHTML = c;
     if (n.eligible) {
       h += row('판정 결과', '세 요건 모두 통과', '자격 유지');
       h += row('건보료', '피부양자는 보험료 없음', '0원', 'sum');
       body.innerHTML = h;
       note.innerHTML = res.t.F <= RULE.nhFinMin && res.t.F > 0
-        ? `금융소득이 1,000만원 이하라 소득 합계에 넣지 않았습니다. 1,000만원을 1원이라도 넘으면 <b>전액</b>이 합산되니 경계 근처라면 주의하세요.`
+        ? `금융소득이 ${RX.man(RULE.nhFinMin)}원 이하라 소득 합계에 넣지 않았습니다. ${RX.man(RULE.nhFinMin)}원을 1원이라도 넘으면 <b>전액</b>이 합산되니 경계 근처라면 주의하세요.`
         : `요건은 매년 국세청 소득 자료로 다시 확인합니다. 재산 요건(재산세 과세표준)은 직접 넣지 않으면 0원으로 봅니다.`;
       return;
     }
-    h += row('지역가입자 반영 소득', '금융·사업·기타 100% + 근로·연금 50%', won(n.ev));
+    h += row('지역가입자 반영 소득', `금융·사업·기타 100% + 근로·연금 ${RX.pct(RULE.pubRate)}`, won(n.ev));
     h += row('소득월액', `${won(n.ev)} ÷ 12${n.atFloor ? ' → 하한 보험료 적용' : ''}`, won(n.m));
   }
   if (TYPE === 'dep' && n.propHealth > 0) {
-    h += row('월 소득 보험료', n.atFloor ? '하한 20,160원' : '소득월액 × 7.19% (10원 미만 절사)', won(n.health - n.propHealth));
-    h += row('월 재산 보험료', `(재산세 과세표준 − 1억원) → ${n.propPts}점 × 211.5원`, won(n.propHealth));
-  } else h += row('월 건강보험료', n.atCap ? '상한 4,591,740원' : TYPE === 'work' ? '소득월액 × 7.19% (10원 미만 절사)' : (n.atFloor ? '하한 20,160원' : '소득월액 × 7.19% (10원 미만 절사)'), won(n.health));
-  h += row('월 장기요양보험료', '건강보험료 × 0.9448 ÷ 7.19 (10원 미만 절사)', won(n.ltc));
+    h += row('월 소득 보험료', n.atFloor ? `하한 ${RX.num(RULE.hiFloor)}원` : `소득월액 × ${RX.pct(RULE.hi)} (${RULE.trunc}원 미만 절사)`, won(n.health - n.propHealth));
+    h += row('월 재산 보험료', `(재산세 과세표준 − ${RX.eok(RULE.propDed)}원) → ${n.propPts}점 × ${RX.num(RULE.perPoint)}원`, won(n.propHealth));
+  } else h += row('월 건강보험료', n.atCap ? `상한 ${RX.num(RULE.hiCap)}원` : TYPE === 'work' ? `소득월액 × ${RX.pct(RULE.hi)} (${RULE.trunc}원 미만 절사)` : (n.atFloor ? `하한 ${RX.num(RULE.hiFloor)}원` : `소득월액 × ${RX.pct(RULE.hi)} (${RULE.trunc}원 미만 절사)`), won(n.health));
+  h += row('월 장기요양보험료', `건강보험료 × ${RX.pn(RULE.ltc)} ÷ ${RX.pn(RULE.hi)} (${RULE.trunc}원 미만 절사)`, won(n.ltc));
   h += row('월 합계 (지금 금융소득 기준)', '', won(n.monthly));
-  h += row('금융소득이 0원이라면', TYPE === 'dep' ? (o.eligible ? '피부양자 자격 유지 → 0원' : '지역가입자 소득 보험료') : (TYPE === 'regional' && o.atFloor ? '금융소득 없으면 하한 보험료(20,160원 + 장기요양)' : '같은 계산을 금융소득 없이'), won(o.monthly));
+  h += row('금융소득이 0원이라면', TYPE === 'dep' ? (o.eligible ? '피부양자 자격 유지 → 0원' : '지역가입자 소득 보험료') : (TYPE === 'regional' && o.atFloor ? `금융소득 없으면 하한 보험료(${RX.num(RULE.hiFloor)}원 + 장기요양)` : '같은 계산을 금융소득 없이'), won(o.monthly));
   h += row('금융소득 때문에 늘어나는 건보료', `월 ${won(res.dNh / 12)} × 12개월`, '연 ' + won(res.dNh), 'sum');
   body.innerHTML = h;
   note.innerHTML = TYPE === 'work'
-    ? `2,000만원 공제는 <b>월급 외 소득 전체</b>에 한 번만 적용됩니다. 금융소득이 1,000만원 이하면 아예 합산되지 않고, 넘으면 전액이 합산돼 다른 월급 외 소득과 함께 2,000만원 넘는지 봅니다.`
+    ? `${RX.man(RULE.extraDed)}원 공제는 <b>월급 외 소득 전체</b>에 한 번만 적용됩니다. 금융소득이 ${RX.man(RULE.nhFinMin)}원 이하면 아예 합산되지 않고, 넘으면 전액이 합산돼 다른 월급 외 소득과 함께 ${RX.man(RULE.extraDed)}원 넘는지 봅니다.`
     : TYPE === 'regional'
-      ? `지역가입자는 별도 공제가 없어 금융소득이 1,000만원을 넘는 순간 전액에 보험료가 붙습니다. 재산 보험료와 세대원 소득은 넣지 않았습니다.`
-      : `탈락하면 지역가입자로 바뀌어 소득 보험료에 <b>재산 보험료</b>(재산세 과세표준 − 1억원 → 부과점수 × 211.5원)가 더해지고, 이 계산에도 넣었습니다. 전월세 보증금·주택담보대출 공제는 넣지 않았습니다.`;
+      ? `지역가입자는 별도 공제가 없어 금융소득이 ${RX.man(RULE.nhFinMin)}원을 넘는 순간 전액에 보험료가 붙습니다. 재산 보험료와 세대원 소득은 넣지 않았습니다.`
+      : `탈락하면 지역가입자로 바뀌어 소득 보험료에 <b>재산 보험료</b>(재산세 과세표준 − ${RX.eok(RULE.propDed)}원 → 부과점수 × ${RX.num(RULE.perPoint)}원)가 더해지고, 이 계산에도 넣었습니다. 전월세 보증금·주택담보대출 공제는 넣지 않았습니다.`;
 }
 
 // ============== 차트 ==============
@@ -1246,7 +1257,7 @@ const boundaryPlugin = {
     const { ctx, chartArea: a, scales: { x } } = chart;
     const isMobile = window.innerWidth < 768;
     ctx.save();
-    [[RULE.nhFinMin, '건보 1,000만'], [RULE.finLimit, '종합과세 2,000만']].forEach(([v, t]) => {
+    [[RULE.nhFinMin, `건보 ${RX.man(RULE.nhFinMin)}`], [RULE.finLimit, `종합과세 ${RX.man(RULE.finLimit)}`]].forEach(([v, t]) => {
       const px = x.getPixelForValue(v);
       if (px < a.left || px > a.right) return;
       ctx.strokeStyle = '#8B6F47'; ctx.lineWidth = 1.2; ctx.setLineDash([4, 4]);
@@ -1276,7 +1287,7 @@ function drawBand(inp) {
   const isMobile = window.innerWidth < 768;
   const radius = (base) => list.map((_, i) => i === cur ? 6 : base);
   document.getElementById('chart-subtitle').innerHTML =
-    `${TYPE_NAME[TYPE]} · 다른 과세표준 ${manText(inp.otherBase)} 조건에서 <b>그 밖의 배당만 늘린다</b>고 가정했습니다. 큰 점이 지금 입력값(${manText(F0)})입니다. 점선은 건보료 1,000만원·종합과세 2,000만원 경계입니다.`;
+    `${TYPE_NAME[TYPE]} · 다른 과세표준 ${manText(inp.otherBase)} 조건에서 <b>그 밖의 배당만 늘린다</b>고 가정했습니다. 큰 점이 지금 입력값(${manText(F0)})입니다. 점선은 건보료 ${RX.man(RULE.nhFinMin)}원·종합과세 ${RX.man(RULE.finLimit)}원 경계입니다.`;
   const ds = [
     { label: '추가 세금(국세+지방)', _short: '세금', data: pts.map(p => ({ x: p.F, y: p.r.t.extraTotal })), borderColor: '#D9542B', backgroundColor: '#D9542B', borderWidth: 3, tension: 0, pointRadius: radius(0), pointHoverRadius: 5 },
     { label: '건보료 증가(연)', _short: '건보료', data: pts.map(p => ({ x: p.F, y: p.r.dNh })), borderColor: '#4A5A4A', backgroundColor: '#4A5A4A', borderWidth: 3, tension: 0, pointRadius: radius(0), pointHoverRadius: 5 },
@@ -1321,7 +1332,7 @@ function bandRows(inp, F0, max) {
 function renderBandTable(inp, F0, max) {
   const rows = bandRows(inp, F0, max);
   const zl = zeroTaxLimit(inp.otherBase);
-  document.getElementById('band-subtitle').innerHTML = `${TYPE_NAME[TYPE]} · 다른 과세표준 ${manText(inp.otherBase)} 기준. 실질 부담률 = (원천징수 15.4% + 추가 세금 + 건보료 증가) ÷ 금융소득. ${zl > RULE.finLimit ? `이 조건에서는 그로스업 없는 금융소득 <b>${manText(zl)}</b>까지 추가 세금이 0원입니다.` : `이 조건에서는 2,000만원을 넘는 순간부터 추가 세금이 붙습니다.`}`;
+  document.getElementById('band-subtitle').innerHTML = `${TYPE_NAME[TYPE]} · 다른 과세표준 ${manText(inp.otherBase)} 기준. 실질 부담률 = (원천징수 ${RX.pct(TR.FIN_INCOME.withholdingWithLocal)} + 추가 세금 + 건보료 증가) ÷ 금융소득. ${zl > RULE.finLimit ? `이 조건에서는 그로스업 없는 금융소득 <b>${manText(zl)}</b>까지 추가 세금이 0원입니다.` : `이 조건에서는 ${RX.man(RULE.finLimit)}원을 넘는 순간부터 추가 세금이 붙습니다.`}`;
   document.getElementById('band-body').innerHTML = rows.map(x => {
     const t = x.r.t;
     const mode = x.F <= 0 ? '-' : !t.comp ? '분리과세' : (t.extra > 0.5 ? '종합과세' : '종합과세(추가 0)');
@@ -1345,15 +1356,15 @@ function renderInsight(inp, res) {
   const plus = finImpact({ ...inp, divOther: inp.divOther + 1e6 });
   const marg = plus.total - res.total;
   if (TYPE === 'dep' && res.nhO.eligible && !res.nhW.eligible) T.textContent = `금융소득 ${manText(F)}이 피부양자 자격을 가져갑니다`;
-  else if (t.comp && t.extra <= 0.5) T.textContent = `2,000만원을 넘었는데도 추가 세금은 0원입니다`;
-  else if (F > 0) T.textContent = `지금 배당 100만원을 더 받으면, ${manText(Math.max(0, marg) + 1e6 * 0.154)}이 세금·건보료로 나갑니다`;
-  else T.textContent = '2,000만원은 시작일 뿐, 진짜 계산은 그 다음입니다';
+  else if (t.comp && t.extra <= 0.5) T.textContent = `${RX.man(RULE.finLimit)}원을 넘었는데도 추가 세금은 0원입니다`;
+  else if (F > 0) T.textContent = `지금 배당 100만원을 더 받으면, ${manText(Math.max(0, marg) + 1e6 * TR.FIN_INCOME.withholdingWithLocal)}이 세금·건보료로 나갑니다`;
+  else T.textContent = `${RX.man(RULE.finLimit)}원은 시작일 뿐, 진짜 계산은 그 다음입니다`;
   let h = '';
-  h += `<p><strong>① 다른 소득이 없으면 꽤 커도 추가 세금이 0원입니다.</strong> 비교과세 때문에 '원천징수 14%로 끝냈을 때'보다 적게 낼 수는 없지만, 다른 소득이 없으면 그로스업 없는 금융소득 <strong>약 ${manText(z0)}</strong>까지는 종합과세가 돼도 추가 세금이 붙지 않습니다(본인 기본공제만 반영). ` +
-    (inp.otherBase > 0 ? (zU > RULE.finLimit ? `지금처럼 다른 과세표준이 ${manText(inp.otherBase)}이면 이 선이 <strong>${manText(zU)}</strong>입니다.` : `지금처럼 다른 과세표준이 ${manText(inp.otherBase)}이면 이미 ${pct(marginalRate(inp.otherBase) * 100, 0)} 구간이라 2,000만원을 넘는 순간부터 추가 세금이 붙습니다.`) : '') + `</p>`;
-  h += `<p><strong>② 피부양자에겐 1,000만원이 절벽입니다.</strong> 금융소득이 1,000만원 이하면 0원으로 보다가 1원만 넘어도 <strong>전액</strong>이 소득으로 잡힙니다. 재산세 과세표준이 5.4억원을 넘는 분은 그 순간 탈락하고, 아니어도 공적연금 등과 합쳐 2,000만원을 넘으면 지역가입자가 됩니다. 세금은 몇 만원 차이인데 건보료는 매달 생기는 구간입니다.</p>`;
-  h += `<p><strong>③ 직장가입자는 월급 외 소득 2,000만원까지 공제됩니다.</strong> 금융소득이 1,000만원을 넘어 전액 합산돼도, 다른 월급 외 소득과 합친 금액이 2,000만원 이하면 추가 건보료는 0원입니다. 넘으면 넘는 부분에 약 8.13%(장기요양 포함)가 붙습니다.</p>`;
-  h += `<p>판단 기준은 이렇습니다. <strong>같은 배당을 ISA·연금저축·IRP 안에서 받으면</strong> 금융소득종합과세와 건보료 계산에서 빠집니다. 2,000만원·1,000만원 경계 근처라면, 일반계좌에 쌓이는 금융소득을 절세계좌로 얼마나 옮길 수 있는지(납입 한도·인출 제약)부터 따져 보세요. 어떤 상품을 담을지는 각자의 상황에 맞춰 정할 일입니다. 국내상장 해외ETF와 미국 직투 중 고민이라면 <a href="https://ttokjaetv.github.io/etf-vs-direct/" target="_blank" rel="noopener">해외ETF vs 직투 세후 비교 계산기</a>도 같이 보세요.</p>`;
+  h += `<p><strong>① 다른 소득이 없으면 꽤 커도 추가 세금이 0원입니다.</strong> 비교과세 때문에 '원천징수 ${RX.pct(RULE.wh)}로 끝냈을 때'보다 적게 낼 수는 없지만, 다른 소득이 없으면 그로스업 없는 금융소득 <strong>약 ${manText(z0)}</strong>까지는 종합과세가 돼도 추가 세금이 붙지 않습니다(본인 기본공제만 반영). ` +
+    (inp.otherBase > 0 ? (zU > RULE.finLimit ? `지금처럼 다른 과세표준이 ${manText(inp.otherBase)}이면 이 선이 <strong>${manText(zU)}</strong>입니다.` : `지금처럼 다른 과세표준이 ${manText(inp.otherBase)}이면 이미 ${pct(marginalRate(inp.otherBase) * 100, 0)} 구간이라 ${RX.man(RULE.finLimit)}원을 넘는 순간부터 추가 세금이 붙습니다.`) : '') + `</p>`;
+  h += `<p><strong>② 피부양자에겐 ${RX.man(RULE.nhFinMin)}원이 절벽입니다.</strong> 금융소득이 ${RX.man(RULE.nhFinMin)}원 이하면 0원으로 보다가 1원만 넘어도 <strong>전액</strong>이 소득으로 잡힙니다. 재산세 과세표준이 ${RX.eok(RULE.depProp1)}원을 넘는 분은 그 순간 탈락하고, 아니어도 공적연금 등과 합쳐 ${RX.man(RULE.depIncome)}원을 넘으면 지역가입자가 됩니다. 세금은 몇 만원 차이인데 건보료는 매달 생기는 구간입니다.</p>`;
+  h += `<p><strong>③ 직장가입자는 월급 외 소득 ${RX.man(RULE.extraDed)}원까지 공제됩니다.</strong> 금융소득이 ${RX.man(RULE.nhFinMin)}원을 넘어 전액 합산돼도, 다른 월급 외 소득과 합친 금액이 ${RX.man(RULE.extraDed)}원 이하면 추가 건보료는 0원입니다. 넘으면 넘는 부분에 약 ${((RULE.hi + RULE.ltc) * 100).toFixed(2)}%(장기요양 포함)가 붙습니다.</p>`;
+  h += `<p>판단 기준은 이렇습니다. <strong>같은 배당을 ISA·연금저축·IRP 안에서 받으면</strong> 금융소득종합과세와 건보료 계산에서 빠집니다. ${RX.man(RULE.finLimit)}원·${RX.man(RULE.nhFinMin)}원 경계 근처라면, 일반계좌에 쌓이는 금융소득을 절세계좌로 얼마나 옮길 수 있는지(납입 한도·인출 제약)부터 따져 보세요. 어떤 상품을 담을지는 각자의 상황에 맞춰 정할 일입니다. 국내상장 해외ETF와 미국 직투 중 고민이라면 <a href="https://ttokjaetv.github.io/etf-vs-direct/" target="_blank" rel="noopener">해외ETF vs 직투 세후 비교 계산기</a>도 같이 보세요.</p>`;
   D.innerHTML = h;
 }
 
@@ -1374,19 +1385,19 @@ function exportDetail() {
   return [
     ['항목', '금액(원)', '설명'],
     ['이자', Math.round(t.I), ''], ['국내주식 직접 배당', Math.round(t.DG), '그로스업 대상'], ['그 밖의 배당', Math.round(t.DO), 'ETF 분배금 등'],
-    ['금융소득 합계', Math.round(t.F), t.comp ? '2,000만원 초과 → 종합과세' : '2,000만원 이하 → 분리과세'],
-    ['그로스업', Math.round(t.gu), '10%'], ['금융소득금액', Math.round(t.finAmt), ''],
-    ['다른 종합소득 과세표준', Math.round(t.O), t.O > 0 ? '' : '없음 → 기본공제 150만원'],
+    ['금융소득 합계', Math.round(t.F), t.comp ? `${RX.man(RULE.finLimit)}원 초과 → 종합과세` : `${RX.man(RULE.finLimit)}원 이하 → 분리과세`],
+    ['그로스업', Math.round(t.gu), RX.pct(RULE.grossUp)], ['금융소득금액', Math.round(t.finAmt), ''],
+    ['다른 종합소득 과세표준', Math.round(t.O), t.O > 0 ? '' : `없음 → 기본공제 ${RX.man(RULE.basicDed)}원`],
     ['종합소득 과세표준', Math.round(t.comp ? t.base : t.O), ''],
     ['A 종합과세 방식', Math.round(t.A), ''], ['B 분리과세 방식', Math.round(t.B), ''],
     ['산출세액', Math.round(t.calc), t.comp ? (t.pick === 'A' ? 'A 선택' : 'B 선택') : '-'], ['배당세액공제', Math.round(t.dc), ''],
-    ['결정세액(국세)', Math.round(t.decided), ''], ['다른 소득만 있을 때 세금', Math.round(t.otherTax), ''], ['원천징수 14%', Math.round(t.prepaid), ''],
+    ['결정세액(국세)', Math.round(t.decided), ''], ['다른 소득만 있을 때 세금', Math.round(t.otherTax), ''], [`원천징수 ${RX.pct(RULE.wh)}`, Math.round(t.prepaid), ''],
     ['추가 납부 국세', Math.round(t.extra), ''], ['추가 지방소득세', Math.round(t.extraLocal), ''], ['추가 세금 합계', Math.round(t.extraTotal), ''],
     ['', '', ''],
     ['건보 가입자 유형', TYPE_NAME[inp.type], ''],
     ['건보료 소득 보정(과세표준과의 차이)', Math.round(inp.nhGap || 0), inp.nhGap > 0 ? '기타소득(100% 반영)으로 봄' : ''],
-    ['건보료에 잡히는 금융소득', Math.round(res.fin), '1,000만원 이하면 0'],
-    ['소득월액(지금)', Math.round(n.m), ''], ['월 건강보험료(지금)', Math.round(n.health), '7.19%'], ['월 장기요양(지금)', Math.round(n.ltc), '0.9448%'],
+    ['건보료에 잡히는 금융소득', Math.round(res.fin), `${RX.man(RULE.nhFinMin)}원 이하면 0`],
+    ['소득월액(지금)', Math.round(n.m), ''], ['월 건강보험료(지금)', Math.round(n.health), RX.pct(RULE.hi)], ['월 장기요양(지금)', Math.round(n.ltc), RX.pct(RULE.ltc)],
     ['월 합계(지금)', Math.round(n.monthly), ''], ['월 합계(금융소득 0원)', Math.round(o.monthly), ''],
     ['건보료 증가(연)', Math.round(res.dNh), ''],
     ['늘어나는 돈 합계(연)', Math.round(res.total), '추가 세금 + 건보료 증가'],
