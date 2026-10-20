@@ -1067,15 +1067,25 @@ function nhSentence(res) {
   const n = res.nhW, o = res.nhO;
   if (TYPE === 'dep') {
     if (o.eligible && !n.eligible) return `그리고 금융소득 때문에 <strong>피부양자 자격을 잃어</strong> 지역가입자 보험료 <strong>월 ${manText(n.monthly)}</strong>이 새로 생깁니다${n.propHealth > 0 ? `(재산 보험료 월 ${manText(n.propHealth)} 포함)` : ''}.`;
-    if (!o.eligible) return `금융소득이 없어도 이미 피부양자 요건을 넘는 상태라, 지역가입자 소득 보험료가 월 ${manText(res.dNh / 12)} 늘어나는 것으로 계산했습니다.`;
+    if (!o.eligible) return res.dNh <= 0.5
+      ? `금융소득이 없어도 이미 피부양자 요건을 넘는 상태라 지역가입자로 계산했고, ${nhZeroReason(res)}`
+      : `금융소득이 없어도 이미 피부양자 요건을 넘는 상태라, 지역가입자 소득 보험료가 월 ${manText(res.dNh / 12)} 늘어나는 것으로 계산했습니다.`;
     return `피부양자 자격은 <strong>유지</strong>되어 건보료는 0원입니다.`;
   }
-  if (res.dNh <= 0.5) {
-    if (TYPE === 'work') return `건보료는 늘지 않습니다. 월급 외 소득이 ${res.fin > 0 ? `${manText(n.S)}로 ${RX.man(RULE.extraDed)}원 이하` : `건보료에 잡히지 않는 수준(금융소득 ${RX.man(RULE.nhFinMin)}원 이하)`}이기 때문입니다.`;
-    return `금융소득이 ${RX.man(RULE.nhFinMin)}원 이하라 건보료 소득에 잡히지 않습니다.`;
-  }
+  if (res.dNh <= 0.5) return nhZeroReason(res);
   if (TYPE === 'work') return `월급 외 소득이 ${RX.man(RULE.extraDed)}원을 넘어 <strong>소득월액 보험료 월 ${manText(res.dNh / 12)}</strong>이 월급 건보료와 별도로 붙습니다.`;
   return `지역가입자 소득 보험료가 <strong>월 ${manText(res.dNh / 12)}</strong> 늘어납니다(재산 보험료는 그대로).`;
+}
+
+// 금융소득을 넣어도 건보료가 늘지 않을 때(직장·지역, 피부양자 요건을 이미 넘은 경우) 그 이유
+function nhZeroReason(res) {
+  const n = res.nhW, o = res.nhO, work = TYPE === 'work';
+  if (!(res.fin > 0)) return work
+    ? `건보료는 늘지 않습니다. 월급 외 소득이 건보료에 잡히지 않는 수준(금융소득 ${RX.man(RULE.nhFinMin)}원 이하)이기 때문입니다.`
+    : `금융소득이 ${RX.man(RULE.nhFinMin)}원 이하라 건보료 소득에 잡히지 않습니다.`;
+  if (n.atCap && o.atCap) return `${work ? '월급 외 소득 보험료' : '소득 보험료'}가 금융소득 없이도 이미 <strong>상한</strong>(건강보험료 월 ${RX.num(RULE.hiCap)}원)이라, 금융소득 ${manText(res.fin)}이 건보료 소득에 더해져도 건보료는 늘지 않습니다.`;
+  if (work && n.S <= RULE.extraDed) return `건보료는 늘지 않습니다. 월급 외 소득이 ${manText(n.S)}로 ${RX.man(RULE.extraDed)}원 이하이기 때문입니다.`;
+  return `금융소득 ${manText(res.fin)}이 건보료 소득에 잡히지만, 이 입력에서는 건보료가 늘지 않습니다.`;
 }
 
 function renderRoom(res) {
