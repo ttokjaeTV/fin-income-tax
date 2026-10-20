@@ -5,3 +5,5 @@
 - 사이트(배포 후): https://ttokjaetv.github.io/fin-income-tax/
 - 단일 HTML 계산기 (index.html). 외부 의존: Pretendard·Chart.js(jsDelivr)
 - 수정 후 GitHub Desktop에서 Commit → Push
+- 제도 숫자는 허브의 `rules/v2026.2/rules.js`(전역 `TTOKJAE_RULES`), 세금·건보료 계산식(누진세·금융소득종합과세·건보료·재산 점수·피부양자 요건)은 허브의 공용 계산 엔진 `rules/calc-v1.js`(전역 `TTOKJAE_CALC`)에서 온다. index.html의 '세금 엔진' 블록은 엔진을 부르는 얇은 껍데기(옛 함수 이름·결과 그대로)이며 etf-vs-direct와 글자까지 같게 유지한다.
+- 계산 테스트: `node tests/engine.test.js` — index.html에서 세금 엔진 블록을 꺼내 실행(rules·calc-v1은 위쪽 폴더의 허브 clone, 없으면 고정 주소). 자동 검사(rules-guard)가 부른다.

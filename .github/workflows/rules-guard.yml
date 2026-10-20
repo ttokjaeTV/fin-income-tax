@@ -16,3 +16,5 @@ permissions:
 jobs:
   guard:
     uses: ttokjaeTV/ttokjaetv.github.io/.github/workflows/rules-guard.yml@main
+    with:
+      test: node tests/engine.test.js

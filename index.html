@@ -9,8 +9,10 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
-<script src="https://ttokjaetv.github.io/rules/v2026.1/rules.js"></script>
+<script src="https://ttokjaetv.github.io/rules/v2026.2/rules.js"></script>
 <script src="https://ttokjaetv.github.io/rules/fill-v1.js"></script>
+<!-- 공용 계산 엔진 (세액·공제·건보료 계산 — rules.js 다음, 이 계산기 스크립트보다 먼저) -->
+<script src="https://ttokjaetv.github.io/rules/calc-v1.js"></script>
 <style>
   :root {
     --bg: #F5EFE6;
@@ -713,8 +715,9 @@
 </div>
 
 <script>
-if (!window.TTOKJAE_RULES) {
-  var TJR_MSG = '기준값 파일(rules.js)을 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 새로고침해 주세요.';
+if (!window.TTOKJAE_RULES || !window.TTOKJAE_CALC) {
+  var TJR_MSG = !window.TTOKJAE_RULES ? '기준값 파일(rules.js)을 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 새로고침해 주세요.'
+    : '계산 엔진 파일(calc-v1.js)을 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 새로고침해 주세요.';
   var tjrShow = function () { document.body.insertAdjacentHTML('afterbegin', '<div role="alert" style="background:#fdecea;color:#b3261e;padding:12px 16px;text-align:center;font-weight:600">' + TJR_MSG + '</div>'); };
   document.body ? tjrShow() : document.addEventListener('DOMContentLoaded', tjrShow);
   throw new Error(TJR_MSG);
@@ -801,14 +804,18 @@ const TJX = (() => {
 
 // ============== 세금 엔진 (fin-income-tax · etf-vs-direct 공통 — 두 계산기가 같은 코드를 씀) ==============
 // 제도 숫자는 공용 기준 파일 rules.js(TTOKJAE_RULES)에서 읽는다. 금액 단위는 원, 비율은 0~1.
+// 법정 계산(누진세·금융소득종합과세·건보료·재산 점수·피부양자 요건)은 공용 계산 엔진 calc-v1.js(전역 TTOKJAE_CALC)가 한다.
+// 아래 함수는 옛 이름·입출력을 지키는 얇은 껍데기다. 부동소수 연산 순서와 특수값(음수·NaN) 동작을 전과 같게 맞춰 두었으니
+// 엔진에 넘기는 값의 순서·모양을 바꾸지 말 것(바꾸면 결과 끝자리·경계 판정이 달라질 수 있음). 새 최상위 이름은 FIN_CALC 하나.
 const TR = TTOKJAE_RULES;
+const FIN_CALC = TTOKJAE_CALC.bind(TR);
 const RULE = {
   year: TR.meta.year,                              // 기준 연도(귀속)
   brackets: TR.INCOME_TAX.brackets,                // 기본세율 [과표 상한, 세율, 누진공제]
   finLimit: TR.FIN_INCOME.threshold,               // 금융소득종합과세 기준 (초과 시 종합과세)
   wh: TR.FIN_INCOME.withholding,                   // 원천징수 소득세율 (지방세 별도)
   local: TR.INCOME_TAX.local,                      // 지방소득세 = 소득세의 10%
-  grossUp: TR.FIN_INCOME.grossUp,                  // 배당가산율
+  grossUp: TR.FIN_INCOME.grossUp,                  // 배당가산율 (화면 설명용 — 계산은 엔진이 grossUpByYear[기준 연도]로 함, 테스트가 두 값이 같은지 확인)
   basicDed: TR.INCOME_TAX.basicDeduction,          // 다른 소득이 없을 때 빼 주는 본인 기본공제
   stdCredit: TR.INCOME_TAX.standardTaxCredit,      // 표준세액공제 (근로소득 없는 종합소득자, 소득세법 제59조의4⑨)
   hi: TR.NHIS.healthRate,                          // 건강보험료율
@@ -825,103 +832,67 @@ const RULE = {
   pubRate: TR.NHIS.publicPensionRatio,             // 근로·공적연금 건보 반영률
   trunc: TR.NHIS.truncUnit,                        // 보험료 절사 단위(원)
 };
-// 지역가입자 재산 점수 (재산세 과세표준 − 1억원, 만원 단위 상한 → 점수) — rules.js NHIS.propertyPointTable
-const NH_PROP = TR.NHIS.propertyPointTable;
-function propPoints(tb) { const man = (tb - RULE.propDed) / 1e4; if (man <= 0) return 0; for (const [l, p] of NH_PROP) if (man <= l) return p; return NH_PROP[NH_PROP.length - 1][1]; }
-// 종합소득세 기본세율 (과세표준 → 산출세액)
-function basicTax(base) {
-  if (!(base > 0)) return 0;
-  for (const [lim, r, d] of RULE.brackets) if (base <= lim) return base * r - d;
-  return 0;
-}
-function marginalRate(base) {
-  if (!(base > 0)) return RULE.brackets[0][1];
-  for (const [lim, r] of RULE.brackets) if (base <= lim) return r;
-  return RULE.brackets[RULE.brackets.length - 1][1];
-}
-// 금융소득종합과세 — 비교과세·그로스업·배당세액공제·표준세액공제
+// 지역가입자 재산 점수 (재산세 과세표준 − 1억원, 만원 단위 상한 → 점수) — 엔진 nhis.propertyPoints
+function propPoints(tb) { return FIN_CALC.nhis.propertyPoints(tb); }
+// 종합소득세 기본세율 (과세표준 → 산출세액) — 엔진 incomeTax.basic
+function basicTax(base) { return FIN_CALC.incomeTax.basic(base); }
+function marginalRate(base) { return FIN_CALC.incomeTax.marginalRate(base); }
+// 금융소득종합과세 — 비교과세·그로스업·배당세액공제·표준세액공제 (엔진 finIncome.tax, 결과 필드·순서 그대로)
 // x = { interest, divGU(그로스업 대상 배당), divOther(그 밖의 배당), otherBase(다른 종합소득 과세표준), hasWage(근로소득 있음) }
 // 표준세액공제(근로소득 없는 종합소득자)는 제62조 비교과세로 정한 산출세액 max(A, B)에서 뺀다 — A·B 비교와 배당세액공제 한도에는 영향 없음.
 // '다른 소득만 있을 때 세금'에서도 같이 빼고, 어느 쪽이든 산출세액보다 크게 빼지 않는다(세액 0원 아래로 안 감).
 // 근로소득이 있으면 근로자 쪽 세액공제는 양쪽에 같이 붙는다고 보고 넣지 않는다(근로소득자 표준세액공제는 계산하지 않음).
+// 결과 extraRaw 음수 = 원천징수가 더 많아 신고 때 돌려받는 몫(표준세액공제 때문에만 생김) — 추가 세금 extra는 0원으로 셈.
+// 그로스업 비율은 기준 연도(rules meta.year) 값 — x에 다른 필드(year 등)가 있어도 넘기지 않는다(전과 같음).
 function finTax(x) {
-  const I = Math.max(0, x.interest || 0), DG = Math.max(0, x.divGU || 0), DO = Math.max(0, x.divOther || 0);
-  const O = Math.max(0, x.otherBase || 0);
-  const F = I + DG + DO;
-  const ded = O > 0 ? 0 : RULE.basicDed;
-  const hasWage = !!x.hasWage, sc = hasWage ? 0 : RULE.stdCredit;
-  const otherCalc = basicTax(O);
-  const otherSc = Math.min(sc, otherCalc);
-  const otherTax = otherCalc - otherSc;
-  const prepaid = F * RULE.wh;
-  const r = { I, DG, DO, O, F, ded, hasWage, otherCalc, otherSc, otherTax, prepaid, comp: F > RULE.finLimit };
-  if (!r.comp) {
-    Object.assign(r, { gu: 0, finAmt: F, base: O, A: 0, B: 0, calc: 0, pick: 'sep', dc: 0, stdc: 0, decided: otherTax + prepaid, extraRaw: 0, extra: 0 });
-  } else {
-    const gu = Math.min(DG, F - RULE.finLimit) * RULE.grossUp;
-    const finAmt = F + gu;
-    const base = Math.max(0, O + finAmt - ded);
-    const A = RULE.finLimit * RULE.wh + basicTax(base - RULE.finLimit);
-    const B = F * RULE.wh + basicTax(base - finAmt);
-    const calc = Math.max(A, B);
-    const dc = Math.min(gu, Math.max(0, calc - B));
-    const stdc = Math.min(sc, Math.max(0, calc - dc));
-    const decided = calc - dc - stdc;
-    Object.assign(r, { gu, finAmt, base, A, B, calc, pick: A >= B ? 'A' : 'B', dc, stdc, decided,
-      extraRaw: decided - otherTax - prepaid,   // 음수 = 원천징수가 더 많아 신고 때 돌려받는 몫(표준세액공제 때문에만 생김) — 추가 세금은 0원으로 셈
-      extra: Math.max(0, decided - otherTax - prepaid) });
-  }
-  r.extraLocal = r.extra * RULE.local;
-  r.extraTotal = r.extra + r.extraLocal;
-  r.prepaidLocal = prepaid * RULE.local;
-  r.prepaidTotal = prepaid + r.prepaidLocal;
-  return r;
+  return FIN_CALC.finIncome.tax({ interest: x.interest, divGU: x.divGU, divOther: x.divOther, otherBase: x.otherBase, hasWage: x.hasWage });
 }
-// 건보료에 잡히는 금융소득 (1,000만원 이하 제외, 넘으면 전액 · 종합과세면 그로스업 포함)
-function nhFinCounted(t) { return t.F <= RULE.nhFinMin ? 0 : (t.comp ? t.finAmt : t.F); }
-// 고지서처럼 10원 미만 버림
-const floor10 = v => Math.floor(v / RULE.trunc + 1e-9) * RULE.trunc;
-// 소득월액 → 월 건강보험료·장기요양보험료 (각각 10원 미만 절사, 장기요양은 절사된 건보료 기준)
-function nhPremium(m, regional) {
-  let h = Math.max(0, m) * RULE.hi;
-  // 지역가입자: 소득월액 28만원 이하이거나, 계산값이 하한보다 작으면 하한 보험료
-  const atFloor = !!regional && (m <= RULE.floorIncome || h < RULE.hiFloor);
-  if (atFloor) h = RULE.hiFloor;
-  const atCap = h > RULE.hiCap;
-  h = floor10(Math.min(RULE.hiCap, h));
-  const l = floor10(h * RULE.ltc / RULE.hi);
-  return { health: h, ltc: l, monthly: h + l, annual: (h + l) * 12, atFloor, atCap };
+// 건보료에 잡히는 금융소득 (1,000만원 이하 제외, 넘으면 전액 · 종합과세면 그로스업 포함) — 엔진 nhis.finCounted
+// 금융소득 합계가 NaN이거나 반영액이 없으면(화면 밖 입력) 엔진과 판정 방향이 달라 전 식으로 계산한다.
+function nhFinCounted(t) {
+  const F = t.F, counted = t.comp ? t.finAmt : F;
+  if (isNaN(F) || counted === undefined) return F <= RULE.nhFinMin ? 0 : counted;
+  return FIN_CALC.nhis.finCounted(F, { counted });
 }
+// 소득월액 → 월 건강보험료·장기요양보험료 (각각 10원 미만 절사, 장기요양은 절사된 건보료 기준) — 엔진 nhis.premium
+function nhPremium(m, regional) { return FIN_CALC.nhis.premium(m, { regional }); }
 // type: 'work'(직장) | 'regional'(지역) | 'dep'(피부양자)
 // o = { biz(사업·임대·기타), wage(근로), pension(공적연금), other(기타·피부양자), bizReg(true/false), prop(재산세 과세표준) }
 function nhisCalc(type, fin, o) {
   const biz = o.biz || 0, wage = o.wage || 0, pen = o.pension || 0, oth = o.other || 0;
   if (type === 'work') {
-    const S = fin + biz + wage + pen;
-    const ev = fin + biz + RULE.pubRate * (wage + pen);
-    const m = S > RULE.extraDed ? (S - RULE.extraDed) / 12 * (ev / S) : 0;
-    return { type, S, ev, m, ...nhPremium(m, false) };
+    // 직장가입자 보수 외 소득 보험료 — 엔진 nhis.employeeExtra (같은 식·같은 순서)
+    // 금융소득이 NaN·undefined면 전에는 합계가 NaN이라 보험료 0원이었다(엔진은 금융소득을 0원으로 보고 계산) — 전 동작 유지
+    if (fin === undefined || fin !== fin) return { type, S: NaN, ev: NaN, m: 0, ...nhPremium(0, false) };
+    return { type, ...FIN_CALC.nhis.employeeExtra({ fin, biz, wage, pension: pen }) };
   }
   if (type === 'regional') {
+    // 반영 소득은 이 계산기 식 그대로 더한다(금융소득은 nhFinCounted로 이미 걸렀고, 음수도 그대로 더함).
+    // 엔진 nhis.regional은 항목별로 0 미만을 자르고 금융소득을 다시 판정해 화면 밖 입력·끝자리 결과가 달라지므로 보험료 계산만 엔진으로.
     const ev = fin + biz + oth + RULE.pubRate * (wage + pen);
     const m = ev / 12;
     return { type, ev, m, ...nhPremium(m, true) };
   }
-  // 피부양자
+  // 피부양자 — 요건 판정은 엔진 nhis.dependent: 소득 합계 Y(기타소득 포함, 전 순서로 더함)를 한 사람의 소득으로 넘기고,
+  // 사업소득 요건은 따로 판정한다(엔진은 사업소득을 소득 합계에 다시 더하므로). Y가 NaN이면 전처럼 소득 요건 탈락(엔진은 NaN을 0으로 봄).
   const Y = fin + pen + wage + oth + biz;
   const prop = o.prop || 0;
-  const cIncome = Y <= RULE.depIncome;
-  const cBiz = o.bizReg ? biz <= 0 : biz <= RULE.depBiz;
-  const cProp = prop <= RULE.depProp1 ? true : (prop <= RULE.depProp2 ? Y <= RULE.depPropIncome : false);
+  const di = FIN_CALC.nhis.dependent([{ pub: Y === Y ? Y : Infinity, taxBase: prop }]).people[0];
+  const db = FIN_CALC.nhis.dependent([{ other: biz, bizReg: o.bizReg }]).people[0];
+  const cIncome = di.incOk;
+  const cBiz = db.bizOk;
+  const cProp = di.propOk;
   const eligible = cIncome && cBiz && cProp;
   const ev = fin + biz + oth + RULE.pubRate * (wage + pen);
   const m = eligible ? 0 : ev / 12;
   let p = eligible ? { health: 0, ltc: 0, monthly: 0, annual: 0 } : nhPremium(m, true);
-  // 피부양자에서 빠지면 지역가입자로서 재산 보험료도 새로 붙는다 (소득 보험료 + 재산 점수 × 점수당 금액) — etf-vs-direct와 같은 계산
-  const propPts = eligible ? 0 : propPoints(prop);
-  const propHealth = floor10(propPts * RULE.perPoint);
+  // 피부양자에서 빠지면 지역가입자로서 재산 보험료도 새로 붙는다 (소득 보험료 + 재산 점수 × 점수당 금액) — 엔진 nhis.regional
+  // (엔진은 소득·재산 보험료를 각각 버리고 장기요양을 합친 건강보험료로 다시 버림 = 전 식. 소득 보험료가 p.health와 다른 경우는 반영 소득이 NaN일 때뿐 → 전처럼 NaN)
+  const pr = eligible ? null : FIN_CALC.nhis.regional({ other: ev, taxBase: prop });
+  const propPts = eligible ? 0 : pr.pts;
+  const propHealth = eligible ? 0 : pr.propPrem;
   if (propHealth > 0) {
-    const health = p.health + propHealth, ltc = floor10(health * RULE.ltc / RULE.hi);
+    const health = p.health + propHealth, ltc = health === pr.health ? pr.ltc : NaN;
     p = { ...p, health, ltc, monthly: health + ltc, annual: (health + ltc) * 12 };
   }
   return { type, Y, prop, cIncome, cBiz, cProp, eligible, ev, m, propPts, propHealth, ...p };
