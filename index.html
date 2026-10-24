@@ -238,6 +238,13 @@
 
   .note { font-size: 13.5px; color: var(--ink-soft); font-weight: 600; line-height: 1.7; }
   .note b, .note strong { color: var(--ink); }
+  .file-step { font-size: 15px; font-weight: 800; margin: 26px 0 10px; }
+  .file-step:first-of-type { margin-top: 6px; }
+  .file-shot { display: block; width: 100%; max-width: 820px; border: 1px solid var(--border); border-radius: 12px; }
+  .num-table { width: 100%; max-width: 820px; border-collapse: collapse; margin-top: 10px; font-size: 13.5px; line-height: 1.65; }
+  .num-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--ink-soft); font-weight: 600; }
+  .num-table td b { color: var(--ink); }
+  .num-table td.n { width: 40px; text-align: center; color: #e03131; font-size: 19px; line-height: 1.2; }
   .head-msg { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 14px; padding: 16px 18px; font-size: 14.5px; font-weight: 700; line-height: 1.65; margin-top: 18px; }
   .head-msg b { color: var(--accent); }
   .rule-list { display: grid; gap: 0; border-top: 1px solid var(--border); }
@@ -648,6 +655,42 @@
         평생 ETF 투자 카페 가입
       </a>
     </div>
+  </div>
+
+  <!-- 공단 모의계산 -->
+  <div class="card" id="official">
+    <div class="step-label"><div class="step-line"></div><span class="step-text">공단 사이트에서 직접 확인하기</span></div>
+    <h3 class="chart-title">국민건강보험공단 모의계산으로 내 건보료 확인하기</h3>
+    <p class="chart-subtitle">국민건강보험공단 누리집 <b>민원서비스 &gt; 모의계산</b>에서 로그인 없이 계산해 볼 수 있습니다. 아래는 지역가입자 · 금융소득 3,000만원 + 공적연금 2,400만원 · 재산 0원 예시입니다. 공단 결과(월 284,710원)가 이 계산기의 '월 합계'와 원 단위까지 같습니다. <a href="?i=200&amp;dg=0&amp;do=2800&amp;ob=1000&amp;t=regional&amp;rp=2400&amp;rw=0&amp;rb=0">같은 예시로 계산기 열기</a> · <a href="https://www.nhis.or.kr/nhis/minwon/initCtrbCalcView.do" target="_blank" rel="noopener">공단 모의계산 바로가기</a></p>
+
+    <div class="file-step">1. 지역보험료 모의계산 — 소득 입력 <small style="color:var(--ink-mute);font-weight:600;">(모의계산 &gt; 보험료 모의계산)</small></div>
+    <img class="file-shot" src="img/nhis1_input.png" alt="국민건강보험공단 지역보험료 모의계산 소득 입력 화면" loading="lazy">
+    <table class="num-table">
+      <tr><td class="n">❶</td><td><b>사업소득 등</b> — 이자·배당·사업·기타소득 합계(만원). 이 계산기의 <b>'건보료에 잡히는 금융소득'</b>을 넣으면 됩니다. 금융소득이 <span data-rule="NHIS.finIncomeThreshold/1e4">1,000</span>만원 이하면 0.</td></tr>
+      <tr><td class="n">❷</td><td><b>연금소득</b> — 국민연금 등 연 수령액을 그대로. 공단이 <span data-rule="NHIS.publicPensionRatio*100">50</span>%만 반영합니다.</td></tr>
+      <tr><td class="n">❸</td><td><b>근로소득</b> — 연금과 같이 <span data-rule="NHIS.publicPensionRatio*100">50</span>% 반영.</td></tr>
+      <tr><td class="n">❹</td><td><b>재산금액</b> — 재산세 과세표준. 이 계산기는 지역가입자 재산 보험료를 넣지 않아 0으로 두면 서로 비교됩니다. 실제 보험료는 집·전월세까지 넣어 보세요.</td></tr>
+    </table>
+
+    <div class="file-step">2. 계산 결과 — 상세보기를 펼친 화면</div>
+    <img class="file-shot" src="img/nhis2_result.png" alt="국민건강보험공단 지역보험료 모의계산 결과 화면" loading="lazy">
+    <table class="num-table">
+      <tr><td class="n">❶</td><td><b>계산하기</b> → 예상 지역보험료가 나오고, '상세보기'를 누르면 아래 표가 펼쳐집니다.</td></tr>
+      <tr><td class="n">❷</td><td><b>예상 지역보험료 284,710원</b> = 이 계산기 '월 합계 (지금 금융소득 기준)'.</td></tr>
+      <tr><td class="n">❸</td><td><b>소득월액보험료 251,650원</b> = 이 계산기 '월 건강보험료'.</td></tr>
+      <tr><td class="n">❹</td><td><b>재산보험료</b> — 재산을 넣으면 여기에 붙습니다(재산 점수 × 부과점수당 금액).</td></tr>
+      <tr><td class="n">❺</td><td><b>장기요양보험료 33,060원</b> = 이 계산기 '월 장기요양보험료'.</td></tr>
+      <tr><td class="n">❻</td><td><b>지역보험료</b> = 건강보험료 + 장기요양보험료. 매달 고지서에 나오는 금액입니다(경감·지원 제외).</td></tr>
+    </table>
+
+    <div class="file-step">3. 피부양자 취득 가능 여부 조회 <small style="color:var(--ink-mute);font-weight:600;">(모의계산 &gt; 피부양자 취득 가능 여부 조회)</small></div>
+    <img class="file-shot" src="img/nhis3_dependent.png" alt="국민건강보험공단 피부양자 취득 가능 여부 조회 결과 화면" loading="lazy">
+    <table class="num-table">
+      <tr><td class="n">❶</td><td><b>직장가입자와의 관계</b>를 고르면 질문이 하나씩 나옵니다 — 사업자등록이 있나 → 사업소득 <span data-rule="NHIS.dependent.biz/1e4">500</span>만원 이하인가 → 합산 소득 연 <span data-rule="NHIS.dependent.income/1e4">2,000</span>만원 이하인가 …</td></tr>
+      <tr><td class="n">❷</td><td>금융소득 3,000만원이면 합산 소득이 <span data-rule="NHIS.dependent.income/1e4">2,000</span>만원을 넘어 <b>'취득신고가 불가'</b> — 이 계산기 피부양자 탭의 '자격 탈락'과 같은 결론입니다.</td></tr>
+      <tr><td class="n">❸</td><td><b>소득, 재산 정보 불러오기</b> — 본인인증으로 로그인하면 내 실제 소득·재산으로 자세히 점검해 줍니다.</td></tr>
+    </table>
+    <p class="note" style="margin-top:14px;">공단 화면은 2026-10-25 기준이며 바뀔 수 있습니다. 공단 모의계산도 경감(노인·한부모 등)·지원은 빼고 계산하므로 실제 고지액과 다를 수 있습니다. 문의 1577-1000.</p>
   </div>
 
   <!-- 세법 기준 -->
